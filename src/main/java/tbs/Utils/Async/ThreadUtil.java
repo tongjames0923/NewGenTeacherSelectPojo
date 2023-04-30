@@ -1,14 +1,17 @@
 package tbs.Utils.Async;
 
+import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.core.task.AsyncTaskExecutor;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Component;
+import tbs.Utils.Async.interfaces.AsyncToDo;
+import tbs.Utils.Async.interfaces.AsyncToGet;
+import tbs.Utils.Async.interfaces.IThreadLocker;
+import tbs.Utils.Async.interfaces.IThreadSign;
+import tbs.Utils.Results.AsyncResult;
 
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 
 @Component
@@ -47,24 +50,34 @@ public class ThreadUtil {
         }
     }
 
-    public void doWithAsync(IThreadSign sign, Collection<AsyncToDo> tasks) throws Exception {
-        basicDo(sign, new IWork() {
-            @Override
-            public void work() {
-                for (AsyncToDo async : tasks) {
-                    executor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            async.doSomething();
-                        }
-                    });
+    public void doWithAsync(Collection<AsyncToDo> tasks) {
+        for(AsyncToDo t:tasks)
+        {
+            if(t==null)
+                continue;
+            IThreadSign sign = SpringUtil.getBean(IThreadSign.class);
+            AsyncResult result = new AsyncResult(threadLocker, sign);
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    threadLocker.lock(result.getSign());
+                    try {
+                        t.doSomething(result);
+                        result.setSTATUS(AsyncResult.DONE);
+                    }catch (Exception e)
+                    {
+                        result.setException(e);
+                        result.setSTATUS(AsyncResult.ERROR);
+                    }finally {
+                        threadLocker.unlock(result.getSign());
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
-    public void doWithAsync(IThreadSign sign, AsyncToDo... tasks) throws Exception {
-        doWithAsync(sign, Arrays.asList(tasks));
+    public void doWithAsync(AsyncToDo... tasks) {
+        doWithAsync(Arrays.asList(tasks));
     }
 
     private class IndexFuture<T> {

@@ -10,7 +10,7 @@ public interface DepartmentDao {
     @Select("select * from department where parentId=#{id}")
     List<Department> findAllByParent(int id);
 
-    @Select("select * from department where id=#{id}")
-    Department getById(int id);
+    @Select("select p2.* from department p1 join department p2 on p2.id=p1.parentId where p1.id=#{id}")
+    Department getParent(int id);
 
 }
