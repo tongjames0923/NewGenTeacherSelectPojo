@@ -20,7 +20,7 @@ public interface StudentDao {
     @Select(StudentDetail.BASIC_DATA_SQL+"where bu.phone=#{phone}")
     StudentDetail findStudentByPhone(String phone);
 
-    @Select(StudentDetail.BASIC_DATA_SQL+" where bu.departmentId=#{department}")
-    List<StudentDetail> findStudentByDepartment(int department);
+    @Select(StudentDetail.BASIC_DATA_SQL+" where bu.departmentId=#{department} limit #{beg},#{end}")
+    List<StudentDetail> findStudentByDepartment(int department,int beg,int end);
 
 }

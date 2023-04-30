@@ -14,6 +14,10 @@ public class AsyncResult {
     private long STATUS=DOING;
     private Exception exception;
 
+    public IThreadLocker getLocker() {
+        return locker;
+    }
+
     public Exception getException() {
         return exception;
     }
@@ -59,7 +63,7 @@ public class AsyncResult {
     {
         return locker.getObject(sign,clas);
     }
-    public <T> List<? extends T> getAsyncListData(Class<?extends T> clas)
+    public <T> List< T> getAsyncListData(Class<T> clas)
     {
         return locker.getList(sign,clas);
     }

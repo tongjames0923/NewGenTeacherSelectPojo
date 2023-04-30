@@ -13,5 +13,5 @@ public interface IThreadLocker {
 
     public <T> T getObject(IThreadSign sign,Class<? extends T> clas) ;
 
-    public <T> List<? extends T> getList(IThreadSign sign, Class<? extends T> clas) ;
+    public <T> List<T> getList(IThreadSign sign, Class< T> clas) ;
 }

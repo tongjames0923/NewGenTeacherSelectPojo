@@ -10,11 +10,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import tbs.Utils.Async.interfaces.IThreadLocker;
 import tbs.Utils.Async.interfaces.IThreadSign;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
 
 @Configuration
@@ -44,11 +42,11 @@ public class DefaultAsyncConfig {
     AsyncTaskExecutor getExecutor()
     {
         ThreadPoolTaskExecutor threadPoolTaskExecutor=new ThreadPoolTaskExecutor();
-        threadPoolTaskExecutor.setCorePoolSize(16);
-        threadPoolTaskExecutor.setMaxPoolSize(128);
-        threadPoolTaskExecutor.setQueueCapacity(256);
-        threadPoolTaskExecutor.initialize();
+        threadPoolTaskExecutor.setCorePoolSize(128);
+        threadPoolTaskExecutor.setMaxPoolSize(512);
+        threadPoolTaskExecutor.setQueueCapacity(1024);
         threadPoolTaskExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        threadPoolTaskExecutor.initialize();
         return threadPoolTaskExecutor;
     }
 
@@ -57,7 +55,7 @@ public class DefaultAsyncConfig {
     IThreadLocker defaultLocker()
     {
         return new IThreadLocker() {
-            Map<String,Object> keys=new ConcurrentHashMap<>();
+            Map<String,Object> keys=new HashMap<>();
 
             @Override
             public boolean isLock(IThreadSign sign) {
@@ -91,10 +89,10 @@ public class DefaultAsyncConfig {
             }
 
             @Override
-            public <T> List<? extends T> getList(IThreadSign sign, Class<? extends T> clas) {
+            public <T> List<T> getList(IThreadSign sign, Class<T> clas) {
                 if(!isLock(sign))
                     return null;
-                return (List<? extends T>) keys.get(sign.key());
+                return (List< T>) keys.get(sign.key());
             }
         };
     }

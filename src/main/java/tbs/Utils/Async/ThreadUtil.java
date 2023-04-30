@@ -8,6 +8,7 @@ import tbs.Utils.Async.interfaces.AsyncToGet;
 import tbs.Utils.Async.interfaces.IThreadLocker;
 import tbs.Utils.Async.interfaces.IThreadSign;
 import tbs.Utils.Results.AsyncResult;
+import tbs.Utils.Results.AsyncWaitter;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -50,34 +51,23 @@ public class ThreadUtil {
         }
     }
 
-    public void doWithAsync(Collection<AsyncToDo> tasks) {
+
+    public AsyncWaitter doWithAsync( List<AsyncToDo> tasks) {
+        List<AsyncResult> results=new LinkedList<>();
         for(AsyncToDo t:tasks)
         {
             if(t==null)
                 continue;
             IThreadSign sign = SpringUtil.getBean(IThreadSign.class);
-            AsyncResult result = new AsyncResult(threadLocker, sign);
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    threadLocker.lock(result.getSign());
-                    try {
-                        t.doSomething(result);
-                        result.setSTATUS(AsyncResult.DONE);
-                    }catch (Exception e)
-                    {
-                        result.setException(e);
-                        result.setSTATUS(AsyncResult.ERROR);
-                    }finally {
-                        threadLocker.unlock(result.getSign());
-                    }
-                }
-            });
+            IThreadLocker temp= SpringUtil.getBean(IThreadLocker.class);
+            AsyncResult result = new AsyncResult(temp, sign);
+            results.add(result);
         }
+        return new AsyncWaitter(results,tasks,null,executor);
     }
-
-    public void doWithAsync(AsyncToDo... tasks) {
-        doWithAsync(Arrays.asList(tasks));
+    public AsyncWaitter doWithAsync(AsyncToDo... tasks)
+    {
+        return doWithAsync(Arrays.asList(tasks));
     }
 
     private class IndexFuture<T> {
