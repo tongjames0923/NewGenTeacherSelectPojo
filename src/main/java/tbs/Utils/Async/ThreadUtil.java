@@ -3,12 +3,13 @@ package tbs.utils.Async;
 import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.stereotype.Component;
-import tbs.Utils.Async.interfaces.AsyncToDo;
-import tbs.Utils.Async.interfaces.AsyncToGet;
-import tbs.Utils.Async.interfaces.IThreadLocker;
-import tbs.Utils.Async.interfaces.IThreadSign;
-import tbs.Utils.Results.AsyncResult;
-import tbs.Utils.Results.AsyncWaitter;
+import tbs.utils.Async.interfaces.AsyncToDo;
+import tbs.utils.Async.interfaces.AsyncToGet;
+import tbs.utils.Async.interfaces.IThreadLocker;
+import tbs.utils.Async.interfaces.IThreadSign;
+import tbs.utils.Results.AsyncResult;
+import tbs.utils.Results.AsyncWaitter;
+
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -55,7 +56,7 @@ public class ThreadUtil {
     }
 
 
-    public AsyncWaitter doWithAsync( List<AsyncToDo> tasks) {
+    public AsyncWaitter doWithAsync(List<AsyncToDo> tasks) {
         List<AsyncResult> results=new LinkedList<>();
         for(AsyncToDo t:tasks)
         {

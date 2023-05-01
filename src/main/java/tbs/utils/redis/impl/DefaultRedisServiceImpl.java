@@ -1,6 +1,7 @@
 package tbs.utils.redis.impl;
 
 import com.alibaba.fastjson.JSON;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import tbs.utils.redis.IRedisService;
