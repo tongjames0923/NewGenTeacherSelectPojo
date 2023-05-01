@@ -1,4 +1,4 @@
-package tbs.Utils.Results;
+package tbs.utils.Results;
 
 public class NetResult<T> {
     private long cost=0L,code=SUCCESS;

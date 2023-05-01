@@ -1,4 +1,4 @@
-package tbs.Utils.Async;
+package tbs.utils.Async;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -7,8 +7,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import tbs.Utils.Async.interfaces.IThreadLocker;
-import tbs.Utils.Async.interfaces.IThreadSign;
+import tbs.utils.Async.interfaces.IThreadLocker;
+import tbs.utils.Async.interfaces.IThreadSign;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -64,27 +64,31 @@ public class DefaultAsyncConfig {
 
             @Override
             public void lock(IThreadSign sign) {
-                if(!isLock(sign))
+                if(!isLock(sign)) {
                     keys.put(sign.key(),null);
+                }
             }
 
             @Override
             public void unlock(IThreadSign sign) {
-                if(keys.containsKey(sign.key()))
+                if(keys.containsKey(sign.key())) {
                     keys.remove(sign.key());
+                }
             }
 
             @Override
             public <T> void putObject(IThreadSign sign, T obj) {
-                if(!isLock(sign))
+                if(!isLock(sign)) {
                     return;
+                }
                 keys.put(sign.key(),obj);
             }
 
             @Override
             public <T> T getObject(IThreadSign sign,Class<? extends T> clas) {
-                if(!isLock(sign))
+                if(!isLock(sign)) {
                     return null;
+                }
                 return (T) keys.get(sign.key());
             }
 

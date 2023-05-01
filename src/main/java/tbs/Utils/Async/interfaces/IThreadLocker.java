@@ -1,4 +1,4 @@
-package tbs.Utils.Async.interfaces;
+package tbs.utils.Async.interfaces;
 
 import java.util.List;
 

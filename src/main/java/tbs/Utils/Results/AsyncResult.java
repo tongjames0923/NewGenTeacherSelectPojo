@@ -1,9 +1,7 @@
-package tbs.Utils.Results;
+package tbs.utils.Results;
 
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-import tbs.Utils.Async.interfaces.IThreadLocker;
-import tbs.Utils.Async.interfaces.IThreadSign;
+import tbs.utils.Async.interfaces.IThreadLocker;
+import tbs.utils.Async.interfaces.IThreadSign;
 
 import java.util.List;
 
@@ -34,8 +32,14 @@ public class AsyncResult {
 
     public void setSTATUS(long STATUS) {
         this.STATUS = STATUS;
-        if(changeEvent!=null)
-            changeEvent.changed(this,IDataChanged.STATUS_CHANGED);
+        if(changeEvent!=null) {
+            try {
+                changeEvent.changed(this,IDataChanged.STATUS_CHANGED);
+            }catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
     }
 
     public static interface IDataChanged
@@ -72,8 +76,14 @@ public class AsyncResult {
         if(locker.isLock(sign))
         {
             locker.putObject(sign,data);
-            if(changeEvent!=null)
-                changeEvent.changed(this,IDataChanged.DATA_CHANGED);
+            if(changeEvent!=null) {
+                try {
+                    changeEvent.changed(this,IDataChanged.DATA_CHANGED);
+                }catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
             return true;
         }
         return false;

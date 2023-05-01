@@ -1,7 +1,4 @@
-package tbs.Utils;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+package tbs.utils;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -28,9 +25,10 @@ public class EncryptionTool {
         for (byte b : result) {
             hexString.append(String.format("%02X", b));
         }
-        if(len>=hexString.length())
+        if(len>=hexString.length()) {
             return hexString.toString();
-        else
-        return hexString.substring(0,len);
+        } else {
+            return hexString.substring(0,len);
+        }
     }
 }

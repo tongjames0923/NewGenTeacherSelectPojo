@@ -1,6 +1,6 @@
-package tbs.Utils.Async.interfaces;
+package tbs.utils.Async.interfaces;
 
-import tbs.Utils.Results.AsyncResult;
+import tbs.utils.Results.AsyncResult;
 
 public interface AsyncToDo {
     public void doSomething(AsyncResult result);

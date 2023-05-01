@@ -1,15 +1,22 @@
-package tbs.Utils;
+package tbs.utils;
 
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
+/**
+ * @author abstergo
+ */
 @Component
+@Scope("prototype")
 public class BatchUtil {
     private static final int STATUS_SAVED = -1;
     @Resource
@@ -18,13 +25,15 @@ public class BatchUtil {
     private SqlSession session = null;
 
     void getSession() {
-        if (session == null)
+        if (session == null) {
             session = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        }
     }
 
     void commitSession() {
-        if (session != null)
+        if (session != null) {
             session.commit();
+        }
     }
 
     void close() {
@@ -33,46 +42,61 @@ public class BatchUtil {
             session = null;
         }
     }
-    void rollback()
-    {
-        if(session!=null)
-        {
+
+    void rollback() {
+        if (session != null) {
             session.rollback();
         }
     }
+
     public interface SqlUpdateExecute {
 
-       public void execute();
-    }
-    public interface SqlSelectExecute
-    {
-        public <T> T select();
+        /**
+         * 使用本工具的getMapper方法获取mapper并执行 insert,udpate,delete操作
+         */
+        public void execute();
     }
 
-    public  <T> T getMapper(Class<T> m)
-    {
-        if(session!=null)
+    public interface SqlSelectExecute {
+        /**
+         * 使用本工具的getMapper方法获取mapper并执行select操作
+         *
+         * @param <T>
+         * @return
+         */
+        public <T> List<T> select();
+    }
+
+    public <T> T getMapper(Class<T> m) {
+        if (session != null) {
             return session.getMapper(m);
+        }
         return null;
     }
+
     public static interface ExecuteCondition {
+        /**
+         * 判断是否哦需要执行
+         *
+         * @param needExe 当前待执行的数量
+         * @return true，立即执行，false 暂存
+         */
         boolean willExecute(int needExe);
     }
 
-    List<SqlUpdateExecute> needExxcutes = new LinkedList<>();
+    Queue<SqlUpdateExecute> needExxcutes = new ConcurrentLinkedQueue<SqlUpdateExecute>();
 
 
-    public static class DefaultNumberLimitCondition implements ExecuteCondition
-    {
-        int n=0;
-        public DefaultNumberLimitCondition(int n)
-        {
-            this.n=n;
+    public static class DefaultNumberLimitCondition implements ExecuteCondition {
+        int n = 0;
+
+        public DefaultNumberLimitCondition(int n) {
+            this.n = n;
         }
 
         @Override
         public boolean willExecute(int needExe) {
-            return needExe>=n;
+            return needExe >= n;
         }
 
         public int getN() {
@@ -83,8 +107,9 @@ public class BatchUtil {
             this.n = n;
         }
     }
-    public static class SQL_EXXECUTE_FAIL_ERROR extends Exception {
-        List<Exception> exceptionList=new LinkedList<>();
+
+    public static class SqlExecuteListException extends Exception {
+        List<Exception> exceptionList = new LinkedList<>();
 
         public List<Exception> getExceptionList() {
             return exceptionList;
@@ -93,68 +118,76 @@ public class BatchUtil {
         public void setExceptionList(List<Exception> exceptionList) {
             this.exceptionList = exceptionList;
         }
+
         @Override
         public void printStackTrace() {
-            for(Exception e:exceptionList)
-            {
+            for (Exception e : exceptionList) {
                 e.printStackTrace();
             }
         }
     }
 
-    private int execute() throws SQL_EXXECUTE_FAIL_ERROR {
-        SQL_EXXECUTE_FAIL_ERROR ex=null;
+    private int execute() throws SqlExecuteListException {
+        SqlExecuteListException ex = null;
         try {
             getSession();
-            for(SqlUpdateExecute q:needExxcutes)
-            {
+            for (SqlUpdateExecute q : needExxcutes) {
                 try {
                     q.execute();
-                }catch (Exception e)
-                {
-                    if(ex==null)
-                        ex=new SQL_EXXECUTE_FAIL_ERROR();
+                } catch (Exception e) {
+                    if (ex == null) {
+                        ex = new SqlExecuteListException();
+                    }
                     ex.getExceptionList().add(e);
                 }
             }
             commitSession();
-        }catch (Exception e)
-        {
-            if(ex==null)
-                ex=new SQL_EXXECUTE_FAIL_ERROR();
+        } catch (Exception e) {
+            if (ex == null) {
+                ex = new SqlExecuteListException();
+            }
             ex.getExceptionList().add(e);
             rollback();
-        }finally {
+        } finally {
             close();
         }
-        if(ex!=null)
+        if (ex != null) {
             throw ex;
-        int cnt= needExxcutes.size();
+        }
+        int cnt = needExxcutes.size();
         needExxcutes.clear();
         return cnt;
     }
-    DefaultNumberLimitCondition defaultNumberLimitCondition=new DefaultNumberLimitCondition(5);
-    public int batchUpdate(int maxSIZE, SqlUpdateExecute... executes) throws SQL_EXXECUTE_FAIL_ERROR {
-        defaultNumberLimitCondition.setN(maxSIZE);
-        return batchUpdate(defaultNumberLimitCondition,executes);
+
+    DefaultNumberLimitCondition defaultNumberLimitCondition = new DefaultNumberLimitCondition(5);
+
+    public int batchUpdate(int maxSize, SqlUpdateExecute... executes) throws SqlExecuteListException {
+        defaultNumberLimitCondition.setN(maxSize);
+        return batchUpdate(defaultNumberLimitCondition, executes);
     }
-    public int batchUpdate(ExecuteCondition executeCondition, SqlUpdateExecute... executes) throws SQL_EXXECUTE_FAIL_ERROR {
-        for (SqlUpdateExecute execute : executes) {
-            if (execute != null)
-                needExxcutes.add(execute);
-        }
-        boolean flag=false;
-        if(executeCondition!=null)
-            flag=executeCondition.willExecute(needExxcutes.size());
-        if(!flag)
-            return STATUS_SAVED;
+
+    public int flush() throws SqlExecuteListException {
         return execute();
     }
 
-    public <T> List<T> select(SqlSelectExecute... selectExecutes)
-    {
-        List<T> result=new LinkedList<>();
+    public int batchUpdate(ExecuteCondition executeCondition, SqlUpdateExecute... executes) throws SqlExecuteListException {
+        for (SqlUpdateExecute execute : executes) {
+            if (execute != null) {
+                needExxcutes.add(execute);
+            }
+        }
+        boolean flag = false;
+        if (executeCondition != null) {
+            flag = executeCondition.willExecute(needExxcutes.size());
+        }
+        if (!flag) {
+            return STATUS_SAVED;
+        }
+        return execute();
+    }
 
+    public <T> List<T> select(SqlSelectExecute... selectExecutes) {
+        List<T> result = new LinkedList<>();
 
         return result;
     }

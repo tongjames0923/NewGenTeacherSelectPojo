@@ -1,4 +1,4 @@
-package tbs.Utils.Async;
+package tbs.utils.Async;
 
 import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.core.task.AsyncTaskExecutor;
@@ -15,6 +15,9 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
+/**
+ * @author abstergo
+ */
 @Component
 public class ThreadUtil {
     @Resource
@@ -56,8 +59,9 @@ public class ThreadUtil {
         List<AsyncResult> results=new LinkedList<>();
         for(AsyncToDo t:tasks)
         {
-            if(t==null)
+            if(t==null) {
                 continue;
+            }
             IThreadSign sign = SpringUtil.getBean(IThreadSign.class);
             IThreadLocker temp= SpringUtil.getBean(IThreadLocker.class);
             AsyncResult result = new AsyncResult(temp, sign);

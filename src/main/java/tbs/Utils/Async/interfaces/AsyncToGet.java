@@ -1,4 +1,4 @@
-package tbs.Utils.Async.interfaces;
+package tbs.utils.Async.interfaces;
 
 public interface AsyncToGet<T> {
     public T getSomething();
