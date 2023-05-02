@@ -1,5 +1,7 @@
 package tbs.utils.Results;
 
+import tbs.utils.AOP.authorize.error.AuthorizationFailureException;
+
 public class NetResult<T> {
     private long cost=0L,code=SUCCESS;
     private T data=null;
@@ -13,7 +15,7 @@ public class NetResult<T> {
         this.message = message;
     }
 
-    public static final long SUCCESS=40000L;
+    public static final long SUCCESS=40000L,LIMITED_ACCESS=39999L,Unchecked_Exception=40001L;
     public static interface IAction<T>
     {
         T action() throws NetError;
@@ -43,15 +45,17 @@ public class NetResult<T> {
 
     public static<T> NetResult<T> makeResult(IAction<T> action)
     {
-        if(action==null)
+        if(action==null) {
             return null;
+        }
         NetResult<T> result=new NetResult<>();
         long beg=System.currentTimeMillis();
         T data=null;
         try {
             data= action.action();
             result.setMessage(action.msg());
-        }catch (NetError error)
+        }
+        catch (NetError error)
         {
             result.setCode(error.getCode());
             result.setMessage(error.getMessage());
