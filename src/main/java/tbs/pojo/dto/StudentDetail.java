@@ -3,12 +3,10 @@ package tbs.pojo.dto;
 import com.alibaba.fastjson.JSON;
 
 
-
-public class StudentDetail  {
-
-    public static final String BASIC_DATA_SQL="SELECT bu.`name` AS `name`,bu.phone AS `phone`,bu.departmentId AS `departmentId`,st.studentNo AS `studentNo`,st.cla AS `clas`,st.grade AS `grade`,r.roleid AS `role`,r.rolename AS `roleName`,d.departname AS `department` FROM basicuser bu JOIN student st ON st.phone=bu.phone JOIN role r ON r.roleid=bu.role JOIN department d ON bu.departmentId=d.id ";
-    private String name,phone,studentNo,clas,roleName,department;
-    private int grade,role,departmentId;
+public class StudentDetail {
+    public static final String BASIC_DATA_SQL = "SELECT bu.`name` AS `name`,bu.phone AS `phone`,bu.departmentId AS `departmentId`,st.studentNo AS `studentNo`,st.cla AS `clas`,st.grade AS `grade`,r.roleid AS `role`,r.rolename AS `roleName`,d.departname AS `department` FROM basicuser bu JOIN student st ON st.phone=bu.phone JOIN role r ON r.roleid=bu.role JOIN department d ON bu.departmentId=d.id ";
+    private String name, phone, studentNo, clas, roleName, department;
+    private int grade, role, departmentId;
 
     public String getDepartment() {
         return department;

@@ -35,8 +35,7 @@ public class Access_AOP_Config {
 
     @Bean
     @ConditionalOnMissingBean(IAccess.class)
-    IAccess defaultAccessBean()
-    {
+    IAccess defaultAccessBean() {
         return new DefaultAccessImpl();
     }
 
@@ -50,22 +49,44 @@ public class Access_AOP_Config {
         NetResult result = null;
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         try {
-            accessCheck(signature);
-            result = (NetResult) joinPoint.proceed();
+            BaseRoleModel roleModel = accessCheck(signature);
+            Object[] params = joinPoint.getArgs();
+            if (roleModel != null) {
+                params = appendUserRole(roleModel, signature, params);
+            }
+            result = (NetResult) joinPoint.proceed(params);
         } catch (AuthorizationFailureException authorizationFailureException) {
             result = new NetResult();
             result.setCode(NetResult.LIMITED_ACCESS);
             result.setMessage(authorizationFailureException.getMessage());
+            authorizationFailureException.printStackTrace();
         } catch (NetResult.NetError netError) {
             result = new NetResult();
             result.setCode(netError.getCode());
             result.setMessage(netError.getMessage());
+            netError.printStackTrace();
         } catch (Throwable throwable) {
             result = new NetResult();
             result.setMessage(throwable.getMessage());
             result.setCode(NetResult.Unchecked_Exception);
+            throwable.printStackTrace();
         }
         return result;
+    }
+
+    Object[] appendUserRole(BaseRoleModel roleModel, MethodSignature signature, Object[] params) {
+        int index = 0;
+        boolean flag = false;
+        for (; index < signature.getParameterTypes().length; index++) {
+            if (signature.getParameterTypes()[index].equals(BaseRoleModel.class)) {
+                flag = true;
+                break;
+            }
+        }
+        if (flag) {
+            params[index] = roleModel;
+        }
+        return params;
     }
 
     @Resource
@@ -100,7 +121,7 @@ public class Access_AOP_Config {
         }
     }
 
-    private void accessCheck(MethodSignature signature) throws AuthorizationFailureException {
+    private BaseRoleModel accessCheck(MethodSignature signature) throws AuthorizationFailureException {
         Method method = signature.getMethod();
         AccessRequire require = method.getAnnotation(AccessRequire.class);
         if (require != null) {
@@ -126,7 +147,9 @@ public class Access_AOP_Config {
             if (!roleMap.containsKey(userrole.getRoleCode())) {
                 throw new AuthorizationFailureException(String.format("您的权限%s,不支持此操作", userrole.getRoleName()));
             }
+            return userrole;
         }
+        return null;
     }
 
 
