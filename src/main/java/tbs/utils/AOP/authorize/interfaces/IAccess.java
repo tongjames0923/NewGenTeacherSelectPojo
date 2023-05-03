@@ -16,7 +16,9 @@ public interface IAccess {
 
     List<BaseRoleModel> grandedManual(int[] manuals);
 
-    void put(String token,BaseRoleModel detail);
+    void put(String token,BaseRoleModel detail)throws Exception;
+
+
 
     void deleteToken(String token);
 

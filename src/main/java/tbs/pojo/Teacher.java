@@ -1,7 +1,19 @@
 package tbs.pojo;
 
+import tbs.utils.sql.annotations.SqlField;
+import tbs.utils.sql.annotations.Updateable;
+
+@Updateable(table = "teacher")
 public class Teacher {
-    String workNo,phone,position,pro_title;
+    @SqlField
+    String workNo;
+    @SqlField
+    String phone;
+    @SqlField
+    String position;
+    @SqlField
+    String pro_title;
+
 
     public String getWorkNo() {
         return workNo;

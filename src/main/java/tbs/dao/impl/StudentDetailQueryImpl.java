@@ -1,7 +1,6 @@
 package tbs.dao.impl;
 
-import tbs.dao.StudentQO;
-import tbs.pojo.dto.StudentDetail;
+import tbs.dao.QO.StudentQO;
 import tbs.utils.sql.SQL_Tool;
 import tbs.utils.sql.query.Page;
 import tbs.utils.sql.query.Sortable;

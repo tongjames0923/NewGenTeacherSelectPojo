@@ -1,10 +1,10 @@
-package tbs.dao;
+package tbs.dao.QO;
 
-import tbs.pojo.dto.StudentDetail;
-import tbs.utils.sql.query.Queryable;
-import tbs.utils.sql.query.SqlField;
+import tbs.pojo.dto.StudentUserDetail;
+import tbs.utils.sql.annotations.Queryable;
+import tbs.utils.sql.annotations.SqlField;
 
-@Queryable(StudentDetail.BASIC_DATA_SQL)
+@Queryable(StudentUserDetail.BASIC_DATA_SQL)
 public class StudentQO {
     @SqlField(field = "bu.phone",index = 0)
     private String phone;

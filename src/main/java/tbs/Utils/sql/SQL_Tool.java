@@ -1,18 +1,18 @@
 package tbs.utils.sql;
 
-import org.springframework.stereotype.Component;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import tbs.utils.sql.annotations.Updateable;
 import tbs.utils.sql.query.Page;
-import tbs.utils.sql.query.Queryable;
+import tbs.utils.sql.annotations.Queryable;
 import tbs.utils.sql.query.Sortable;
-import tbs.utils.sql.query.SqlField;
+import tbs.utils.sql.annotations.SqlField;
 
-import java.lang.annotation.AnnotationTypeMismatchException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class SQL_Tool {
 
@@ -58,12 +58,12 @@ public class SQL_Tool {
             field.setAccessible(true);
             SqlFieldItem fieldItem = new SqlFieldItem();
             fieldItem.setIndex(f.index());
-            fieldItem.setField(f.field());
+            fieldItem.setField(StringUtils.isEmpty(f.field()) ? field.getName() : f.field());
             Object v = field.get(qo);
             if (v != null) {
                 fieldItem.setValue(v.toString());
-                items.add(fieldItem);
             }
+            items.add(fieldItem);
         }
         items.sort((item1, item2) -> {
             return item1.index - item2.index;
@@ -72,7 +72,7 @@ public class SQL_Tool {
     }
 
     public String rolesIn(List<Integer> list) {
-        StringBuilder builder = new StringBuilder("SELECT r.roleid as roleCode,r.rolename as roleName from role r where ");
+        StringBuilder builder = new StringBuilder("SELECT r.roleid as roleCode,r.rolename as roleName from role r ");
         builder.append(listOr("r.roleid", list));
         return builder.toString();
     }
@@ -95,7 +95,8 @@ public class SQL_Tool {
                     item = items.get(i);
                     n = item.getField();
                     v = item.getValue();
-                    find += " and " + n + "='" + v + "' ";
+                    if (!StringUtils.isEmpty(v))
+                        find += " and " + n + "='" + v + "' ";
                 }
                 select.append(find);
             }
@@ -113,11 +114,89 @@ public class SQL_Tool {
         return select.toString();
     }
 
+    private interface StringConnector<T> {
+        default String singleItem(T item, int index, String now) {
+            return item.toString();
+        }
+
+        int connectPosition(T item, int index, String now);
+    }
+
+    static <T> String ListToStr(List<T> ls, String connectStr, StringConnector<T> connector) {
+        if (connector == null)
+            return "";
+        if (StringUtils.isEmpty(connectStr))
+            connectStr = ",";
+        int index = 0;
+        String result = "";
+        for (T i : ls) {
+            int pos = connector.connectPosition(i, index, result);
+            if (pos < 0)
+                result += connectStr + connector.singleItem(i, index, result);
+            else if (pos > 0)
+                result += connector.singleItem(i, index, result) + connectStr;
+            else
+                result += connector.singleItem(i, index, result);
+            index++;
+        }
+        return result;
+    }
+
+
+    private static class SqlFieldConnector implements StringConnector<SqlFieldItem> {
+
+        @Override
+        public String singleItem(SqlFieldItem item, int index, String now) {
+            return "`" + item.field + "`";
+        }
+
+        @Override
+        public int connectPosition(SqlFieldItem item, int index, String now) {
+            return -index;
+        }
+    }
+
+    private static class SqlValueConnector implements StringConnector<SqlFieldItem> {
+
+        @Override
+        public String singleItem(SqlFieldItem item, int index, String now) {
+            if(StringUtils.isEmpty(item.value))
+                return "NULL";
+            return "'" + item.value + "'";
+        }
+
+        @Override
+        public int connectPosition(SqlFieldItem item, int index, String now) {
+            return -index;
+        }
+    }
+
+    static StringConnector<SqlFieldItem> fieldItemStringConnector = new SqlFieldConnector(),
+            valueItemStringConnector = new SqlValueConnector();
+
+    public static <Q> String insert(Q data) throws Exception {
+
+        Updateable updateable = data.getClass().getDeclaredAnnotation(Updateable.class);
+        if (updateable == null) {
+            throw new Exception("not find updateable in class");
+        }
+
+        List<SqlFieldItem> items = qoToList(data);
+        if (CollectionUtils.isEmpty(items))
+            throw new Exception("empty field for " + data.getClass());
+        StringBuilder builder = new StringBuilder("insert into " + updateable.table() + " ");
+        String feilds = "(" + ListToStr(items, ",", fieldItemStringConnector) + ")";
+        String values = "(" + ListToStr(items, ",", valueItemStringConnector)+")";
+        builder.append(feilds).append(" values ").append(values);
+        return builder.toString();
+    }
+
+
     public static String listOr(String field, List list) {
         if (CollectionUtils.isEmpty(list)) {
-            return "()";
+            return "";
         }
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder("where ");
         int index = 0;
         Object item = list.get(index++);
         builder.append(field + "='" + item.toString() + "' ");

@@ -1,13 +1,11 @@
 package tbs.utils.AOP.authorize.impls;
 
-import cn.hutool.extra.spring.SpringUtil;
 import io.netty.util.internal.StringUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
@@ -17,6 +15,7 @@ import tbs.utils.AOP.authorize.annotations.AccessRequire;
 import tbs.utils.AOP.authorize.error.AuthorizationFailureException;
 import tbs.utils.AOP.authorize.interfaces.IAccess;
 import tbs.utils.AOP.authorize.model.BaseRoleModel;
+import tbs.utils.error.NetError;
 import tbs.utils.Results.NetResult;
 
 import javax.annotation.Resource;
@@ -40,15 +39,40 @@ public class Access_AOP_Config {
     }
 
 
+    @Pointcut("execution(public tbs.utils.Results.NetResult tbs.utils.AOP.controller.ApiProxy.method(..))")
+    public void result() {
+
+    }
+
+    ThreadLocal<String> sessionToken = new ThreadLocal<>();
+
+    @Around("result()")
+    NetResult handleResult(ProceedingJoinPoint joinPoint) throws Throwable {
+        NetResult result=null;
+        Object[] objs = joinPoint.getArgs();
+        if (objs[1] == null) {
+            result = new NetResult();
+        }
+        else
+            result= (NetResult) objs[1];
+        result.setInvokeToken(sessionToken.get());
+        objs[1] = result;
+        result = (NetResult) joinPoint.proceed(objs);
+
+        return result;
+
+    }
+
+
     @Pointcut("execution(public tbs.utils.Results.NetResult *.*(..))&&@annotation(tbs.utils.AOP.authorize.annotations.AccessRequire)")
     public void access() {
     }
 
     @Around("access()")
     NetResult handleSafe(ProceedingJoinPoint joinPoint) {
-        NetResult result = null;
-        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        NetResult result = new NetResult();
         try {
+            MethodSignature signature = (MethodSignature) joinPoint.getSignature();
             BaseRoleModel roleModel = accessCheck(signature);
             Object[] params = joinPoint.getArgs();
             if (roleModel != null) {
@@ -56,20 +80,13 @@ public class Access_AOP_Config {
             }
             result = (NetResult) joinPoint.proceed(params);
         } catch (AuthorizationFailureException authorizationFailureException) {
-            result = new NetResult();
             result.setCode(NetResult.LIMITED_ACCESS);
             result.setMessage(authorizationFailureException.getMessage());
-            authorizationFailureException.printStackTrace();
-        } catch (NetResult.NetError netError) {
-            result = new NetResult();
-            result.setCode(netError.getCode());
-            result.setMessage(netError.getMessage());
-            netError.printStackTrace();
+            result.setCost(-1);
         } catch (Throwable throwable) {
-            result = new NetResult();
-            result.setMessage(throwable.getMessage());
+            result.setCost(-1);
             result.setCode(NetResult.Unchecked_Exception);
-            throwable.printStackTrace();
+            result.setMessage(throwable.getMessage());
         }
         return result;
     }
@@ -109,6 +126,7 @@ public class Access_AOP_Config {
                 token = null;
             }
         }
+        sessionToken.set(token);
         return token;
     }
 
@@ -127,7 +145,7 @@ public class Access_AOP_Config {
         if (require != null) {
             String tk = takeToken(require.requireField());
             if (StringUtils.isEmpty(tk)) {
-                throw new AuthorizationFailureException(String.format("can not read role from header"));
+                throw new AuthorizationFailureException(String.format("空的密钥信息"));
             }
             Map<Integer, BaseRoleModel> roleMap = new HashMap<>();
             consumeElement(access.grandedManual(require.manual()), (e) -> {
@@ -142,7 +160,7 @@ public class Access_AOP_Config {
             });
             BaseRoleModel userrole = access.readRole(tk);
             if (userrole == null) {
-                throw new AuthorizationFailureException(String.format("can not read role from header"));
+                throw new AuthorizationFailureException(String.format("无效密钥信息"));
             }
             if (!roleMap.containsKey(userrole.getRoleCode())) {
                 throw new AuthorizationFailureException(String.format("您的权限%s,不支持此操作", userrole.getRoleName()));
