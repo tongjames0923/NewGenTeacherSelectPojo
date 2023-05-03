@@ -19,11 +19,6 @@ public class ControllerDefaultConfig {
                 try {
                     result.setData(action.action(result));
                     result.setMessage(action.msg());
-                } catch (AuthorizationFailureException authorizationFailureException) {
-                    result = new NetResult();
-                    result.setCode(NetResult.LIMITED_ACCESS);
-                    result.setMessage(authorizationFailureException.getMessage());
-                    authorizationFailureException.printStackTrace();
                 } catch (NetError netError) {
                     result.setCode(netError.getCode());
                     result.setMessage(netError.getMessage());

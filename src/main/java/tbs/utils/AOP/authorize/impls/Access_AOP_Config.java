@@ -14,6 +14,7 @@ import org.springframework.util.StringUtils;
 import tbs.utils.AOP.authorize.annotations.AccessRequire;
 import tbs.utils.AOP.authorize.error.AuthorizationFailureException;
 import tbs.utils.AOP.authorize.interfaces.IAccess;
+import tbs.utils.AOP.authorize.interfaces.IPermissionVerification;
 import tbs.utils.AOP.authorize.model.BaseRoleModel;
 import tbs.utils.error.NetError;
 import tbs.utils.Results.NetResult;
@@ -30,7 +31,17 @@ import java.util.function.Consumer;
 @Aspect
 @Component
 public class Access_AOP_Config {
+    @Resource
+    HttpServletRequest request;
 
+    @Resource
+    IAccess access;
+    @Resource
+    IPermissionVerification permissionVerification;
+
+    ThreadLocal<String> sessionToken = new ThreadLocal<>();
+
+    ThreadLocal<IPermissionVerification.VerificationConclusion> auth = new ThreadLocal<>();
 
     @Bean
     @ConditionalOnMissingBean(IAccess.class)
@@ -39,23 +50,37 @@ public class Access_AOP_Config {
     }
 
 
+    @Bean
+    @ConditionalOnMissingBean(IPermissionVerification.class)
+    IPermissionVerification permissionVerification() {
+        return new IPermissionVerification() {
+            @Override
+            public VerificationConclusion accessCheck(BaseRoleModel user, Map<Integer, BaseRoleModel> needRoleMap) throws AuthorizationFailureException {
+                if (needRoleMap.containsKey(user.getRoleCode()))
+                    return VerificationConclusion.EQUAL;
+                else
+                    return VerificationConclusion.UnAuthorized;
+            }
+        };
+    }
+
+
     @Pointcut("execution(public tbs.utils.Results.NetResult tbs.utils.AOP.controller.ApiProxy.method(..))")
     public void result() {
 
     }
 
-    ThreadLocal<String> sessionToken = new ThreadLocal<>();
 
     @Around("result()")
     NetResult handleResult(ProceedingJoinPoint joinPoint) throws Throwable {
-        NetResult result=null;
+        NetResult result = null;
         Object[] objs = joinPoint.getArgs();
         if (objs[1] == null) {
             result = new NetResult();
-        }
-        else
-            result= (NetResult) objs[1];
+        } else
+            result = (NetResult) objs[1];
         result.setInvokeToken(sessionToken.get());
+        result.setAuthType(auth.get());
         objs[1] = result;
         result = (NetResult) joinPoint.proceed(objs);
 
@@ -67,6 +92,7 @@ public class Access_AOP_Config {
     @Pointcut("execution(public tbs.utils.Results.NetResult *.*(..))&&@annotation(tbs.utils.AOP.authorize.annotations.AccessRequire)")
     public void access() {
     }
+
 
     @Around("access()")
     NetResult handleSafe(ProceedingJoinPoint joinPoint) {
@@ -106,11 +132,6 @@ public class Access_AOP_Config {
         return params;
     }
 
-    @Resource
-    HttpServletRequest request;
-
-    @Resource
-    IAccess access;
 
     String takeToken(String f) {
         Enumeration<String> em = request.getHeaders(f);
@@ -162,9 +183,10 @@ public class Access_AOP_Config {
             if (userrole == null) {
                 throw new AuthorizationFailureException(String.format("无效密钥信息"));
             }
-            if (!roleMap.containsKey(userrole.getRoleCode())) {
-                throw new AuthorizationFailureException(String.format("您的权限%s,不支持此操作", userrole.getRoleName()));
-            }
+            IPermissionVerification.VerificationConclusion conclusion = permissionVerification.accessCheck(userrole, roleMap);
+            this.auth.set(conclusion);
+            if (conclusion == IPermissionVerification.VerificationConclusion.UnAuthorized)
+                throw new AuthorizationFailureException(String.format("您的权限%s级别，无法进行此操作", userrole.getRoleName()));
             return userrole;
         }
         return null;

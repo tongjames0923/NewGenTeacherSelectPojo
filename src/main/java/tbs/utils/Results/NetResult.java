@@ -1,5 +1,6 @@
 package tbs.utils.Results;
 
+import tbs.utils.AOP.authorize.interfaces.IPermissionVerification;
 import tbs.utils.AOP.controller.IAction;
 import tbs.utils.error.NetError;
 
@@ -8,7 +9,17 @@ public class NetResult<T> {
     private T data=null;
     private String message="";
 
-    String invokeToken="";
+    private String invokeToken="";
+
+    private IPermissionVerification.VerificationConclusion authType;
+
+    public IPermissionVerification.VerificationConclusion getAuthType() {
+        return authType;
+    }
+
+    public void setAuthType(IPermissionVerification.VerificationConclusion authType) {
+        this.authType = authType;
+    }
 
     public String getInvokeToken() {
         return invokeToken;

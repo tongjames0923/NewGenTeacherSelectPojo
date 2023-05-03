@@ -42,10 +42,11 @@ public class DefaultAsyncConfig {
     AsyncTaskExecutor getExecutor()
     {
         ThreadPoolTaskExecutor threadPoolTaskExecutor=new ThreadPoolTaskExecutor();
-        threadPoolTaskExecutor.setCorePoolSize(128);
-        threadPoolTaskExecutor.setMaxPoolSize(512);
-        threadPoolTaskExecutor.setQueueCapacity(1024);
+        threadPoolTaskExecutor.setCorePoolSize(16);
+        threadPoolTaskExecutor.setMaxPoolSize(128);
+        threadPoolTaskExecutor.setQueueCapacity(512);
         threadPoolTaskExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        threadPoolTaskExecutor.setWaitForTasksToCompleteOnShutdown(true);
         threadPoolTaskExecutor.initialize();
         return threadPoolTaskExecutor;
     }
