@@ -9,7 +9,7 @@ import java.util.Map;
 public interface IPermissionVerification {
     public static enum VerificationConclusion
     {
-        UnAuthorized("未授权"),Authorized("高级别授权"),EQUAL("匹配授权");
+        UnAuthorized("未授权"),Authorized("高级别授权"),EQUAL("匹配授权"),NO_NEED("无需授权");
         private String value;
 
         public String getValue() {
