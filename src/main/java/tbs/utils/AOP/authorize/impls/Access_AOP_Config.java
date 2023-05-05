@@ -16,6 +16,7 @@ import tbs.utils.AOP.authorize.error.AuthorizationFailureException;
 import tbs.utils.AOP.authorize.interfaces.IAccess;
 import tbs.utils.AOP.authorize.interfaces.IPermissionVerification;
 import tbs.utils.AOP.authorize.model.BaseRoleModel;
+import tbs.utils.Async.annotations.AsyncReturnFunction;
 import tbs.utils.error.NetError;
 import tbs.utils.Results.NetResult;
 
@@ -41,7 +42,7 @@ public class Access_AOP_Config {
 
     ThreadLocal<String> sessionToken = new ThreadLocal<>();
 
-    ThreadLocal<IPermissionVerification.VerificationConclusion> auth = new ThreadLocal<>();
+    ThreadLocal<NetResult> singleResult = new ThreadLocal<>();
 
     @Bean
     @ConditionalOnMissingBean(IAccess.class)
@@ -56,12 +57,18 @@ public class Access_AOP_Config {
         return new IPermissionVerification() {
             @Override
             public VerificationConclusion accessCheck(BaseRoleModel user, Map<Integer, BaseRoleModel> needRoleMap) throws AuthorizationFailureException {
-                if (needRoleMap.containsKey(user.getRoleCode()))
+                if (needRoleMap.containsKey(user.getRoleCode())) {
                     return VerificationConclusion.EQUAL;
-                else
+                } else {
                     return VerificationConclusion.UnAuthorized;
+                }
             }
         };
+    }
+
+    @Pointcut("@annotation(org.springframework.web.bind.annotation.RequestMapping)")
+    public void apiInto() {
+
     }
 
 
@@ -73,14 +80,12 @@ public class Access_AOP_Config {
 
     @Around("result()")
     NetResult handleResult(ProceedingJoinPoint joinPoint) throws Throwable {
-        NetResult result = null;
+        NetResult result = singleResult.get() == null ? new NetResult() : singleResult.get();
+
         Object[] objs = joinPoint.getArgs();
-        if (objs[1] == null) {
-            result = new NetResult();
-        } else
+        if (objs[1] != null) {
             result = (NetResult) objs[1];
-        result.setInvokeToken(sessionToken.get());
-        result.setAuthType(auth.get());
+        }
         objs[1] = result;
         result = (NetResult) joinPoint.proceed(objs);
 
@@ -89,7 +94,7 @@ public class Access_AOP_Config {
     }
 
 
-    @Pointcut("execution(public tbs.utils.Results.NetResult *.*(..))&&@annotation(tbs.utils.AOP.authorize.annotations.AccessRequire)")
+    @Pointcut("(execution(public tbs.utils.Results.NetResult *.*(..))&&@annotation(tbs.utils.AOP.authorize.annotations.AccessRequire))||@annotation(org.springframework.web.bind.annotation.RequestMapping)")
     public void access() {
     }
 
@@ -97,8 +102,13 @@ public class Access_AOP_Config {
     @Around("access()")
     NetResult handleSafe(ProceedingJoinPoint joinPoint) {
         NetResult result = new NetResult();
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        NetResult.MethodType type = signature.getMethod().getAnnotation(AsyncReturnFunction.class) != null ?
+                NetResult.MethodType.AsynchronousDelay : NetResult.MethodType.Immediately;
+        result.setMethodType(type);
+        singleResult.set(result);
         try {
-            MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+
             BaseRoleModel roleModel = accessCheck(signature);
             Object[] params = joinPoint.getArgs();
             if (roleModel != null) {
@@ -184,9 +194,13 @@ public class Access_AOP_Config {
                 throw new AuthorizationFailureException(String.format("无效密钥信息"));
             }
             IPermissionVerification.VerificationConclusion conclusion = permissionVerification.accessCheck(userrole, roleMap);
-            this.auth.set(conclusion);
-            if (conclusion == IPermissionVerification.VerificationConclusion.UnAuthorized)
+            NetResult result = this.singleResult.get();
+            result.setAuthType(conclusion);
+            result.setInvokeToken(tk);
+            singleResult.set(result);
+            if (conclusion == IPermissionVerification.VerificationConclusion.UnAuthorized) {
                 throw new AuthorizationFailureException(String.format("您的权限%s级别，无法进行此操作", userrole.getRoleName()));
+            }
             return userrole;
         }
         return null;

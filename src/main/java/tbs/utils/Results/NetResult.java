@@ -5,13 +5,88 @@ import tbs.utils.AOP.controller.IAction;
 import tbs.utils.error.NetError;
 
 public class NetResult<T> {
-    private long cost=0L,code=SUCCESS;
-    private T data=null;
-    private String message="";
+    public static enum MethodType {
+        Immediately("即时响应", 1), AsynchronousDelay("异步延迟", 2);
+        private String str;
+        private int value;
 
-    private String invokeToken="";
+        MethodType(String str, int value) {
+            this.str = str;
+            this.value = value;
+        }
 
-    private IPermissionVerification.VerificationConclusion authType;
+        public String getStr() {
+            return str;
+        }
+
+        public void setStr(String str) {
+            this.str = str;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public void setValue(int value) {
+            this.value = value;
+        }
+    }
+
+
+    public static class AsyncDelayResult {
+        public static final String RUNNING="运行中",DONE="完成";
+        private String invokePath;
+
+        private String status=RUNNING;
+
+        public String getStatus() {
+            return status;
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
+        }
+
+        public AsyncDelayResult(String invokePath) {
+            this.invokePath = invokePath;
+        }
+
+        public String getInvokePath() {
+            return invokePath;
+        }
+
+        public void setInvokePath(String invokePath) {
+            this.invokePath = invokePath;
+        }
+
+        Object data;
+
+        public Object getData() {
+            return data;
+        }
+
+        public void setData(Object data) {
+            this.data = data;
+        }
+    }
+
+    private MethodType methodType = MethodType.Immediately;
+
+    public MethodType getMethodType() {
+        return methodType;
+    }
+
+    public void setMethodType(MethodType methodType) {
+        this.methodType = methodType;
+    }
+
+    private long cost = 0L, code = SUCCESS;
+    private T data = null;
+    private String message = "";
+
+    private String invokeToken = "匿名用户";
+
+    private IPermissionVerification.VerificationConclusion authType = IPermissionVerification.VerificationConclusion.NO_NEED;
 
     public IPermissionVerification.VerificationConclusion getAuthType() {
         return authType;
@@ -37,7 +112,7 @@ public class NetResult<T> {
         this.message = message;
     }
 
-    public static final long SUCCESS=40000L,LIMITED_ACCESS=39999L,Unchecked_Exception=40001L;
+    public static final long SUCCESS = 40000L, LIMITED_ACCESS = 39999L, Unchecked_Exception = 40001L;
 
     public long getCost() {
         return cost;

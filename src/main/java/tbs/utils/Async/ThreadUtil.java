@@ -55,23 +55,33 @@ public class ThreadUtil {
         }
     }
 
-
     public AsyncWaitter doWithAsync(List<AsyncToDo> tasks) {
-        List<AsyncResult> results=new LinkedList<>();
-        for(AsyncToDo t:tasks)
-        {
-            if(t==null) {
+        return doWithAsync(null, null, tasks);
+    }
+
+    public AsyncWaitter doWithAsync(IThreadSign sign, IThreadLocker locker, List<AsyncToDo> tasks) {
+        List<AsyncResult> results = new LinkedList<>();
+        for (AsyncToDo t : tasks) {
+            if (t == null) {
                 continue;
             }
-            IThreadSign sign = SpringUtil.getBean(IThreadSign.class);
-            IThreadLocker temp= SpringUtil.getBean(IThreadLocker.class);
-            AsyncResult result = new AsyncResult(temp, sign);
+            if (sign == null) {
+                sign = SpringUtil.getBean(IThreadSign.class);
+            }
+            if (locker == null) {
+                locker = SpringUtil.getBean(IThreadLocker.class);
+            }
+            AsyncResult result = new AsyncResult(locker, sign);
             results.add(result);
         }
-        return new AsyncWaitter(results,tasks,null,executor);
+        return new AsyncWaitter(results, tasks, null, executor);
     }
-    public AsyncWaitter doWithAsync(AsyncToDo... tasks)
-    {
+
+    public AsyncWaitter doWithAsync(IThreadSign sign, IThreadLocker locker, AsyncToDo... tasks) {
+        return doWithAsync(sign, locker, Arrays.asList(tasks));
+    }
+
+    public AsyncWaitter doWithAsync(AsyncToDo... tasks) {
         return doWithAsync(Arrays.asList(tasks));
     }
 

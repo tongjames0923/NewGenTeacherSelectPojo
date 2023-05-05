@@ -17,5 +17,7 @@ public interface IRedisService {
     void delete(String key);
     void expire(String key,long timeout,TimeUnit unit);
 
+    long getExpire(String key,TimeUnit unit);
+
     boolean hasKey(String key);
 }

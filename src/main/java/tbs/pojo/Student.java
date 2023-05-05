@@ -1,14 +1,23 @@
 package tbs.pojo;
 
 public class Student {
-    private String studentNo,cla,phone;
+    private String studentNo, cla, phone, masterPhone;
     private int grade;
 
-    public String getstudentNo() {
+
+    public String getMasterPhone() {
+        return masterPhone;
+    }
+
+    public void setMasterPhone(String masterPhone) {
+        this.masterPhone = masterPhone;
+    }
+
+    public String getStudentNo() {
         return studentNo;
     }
 
-    public void setstudentNo(String studentNo) {
+    public void setStudentNo(String studentNo) {
         this.studentNo = studentNo;
     }
 
