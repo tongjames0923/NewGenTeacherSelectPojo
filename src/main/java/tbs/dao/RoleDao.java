@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.springframework.cache.annotation.Cacheable;
 import tbs.utils.AOP.authorize.model.BaseRoleModel;
+import tbs.utils.redis.RedisConfig;
 import tbs.utils.sql.SQL_Tool;
 
 import java.util.List;
@@ -16,7 +17,9 @@ public interface RoleDao {
     BaseRoleModel loginRole(String phone, String password);
 
 
-
+    @Select(BaseRoleModel.BASIC_DATA_SQL+" where roleid=#{id} ")
+    @Cacheable(value = "role",key = "#id",unless = "#result==null",cacheManager = RedisConfig.LongTermCache)
+    BaseRoleModel findOne(int id);
 
     @SelectProvider(type = SQL_Tool.class, method = "rolesIn")
     List<BaseRoleModel> roleInList(List<Integer> ids);

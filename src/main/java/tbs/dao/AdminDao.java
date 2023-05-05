@@ -1,9 +1,6 @@
 package tbs.dao;
 
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.InsertProvider;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.springframework.cache.annotation.Cacheable;
 import tbs.dao.impl.SqlUpdateImpl;
 import tbs.pojo.Admin;
@@ -22,4 +19,10 @@ public interface AdminDao {
 
     @InsertProvider(type = SqlUpdateImpl.class,method = "insert")
     void saveAdmin(Admin admin);
+
+
+
+    @Select(AdminDetail.BASIC_DATA_SQL+" where adminToken=#{token}")
+    @Cacheable(value = "admin_profile",key = "#token",unless = "#result==null",cacheManager = RedisConfig.LongTermCache)
+    AdminDetail find(String token);
 }

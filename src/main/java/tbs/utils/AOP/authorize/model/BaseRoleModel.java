@@ -1,6 +1,12 @@
 package tbs.utils.AOP.authorize.model;
 
+
+import org.apache.ibatis.annotations.Select;
+
 public class BaseRoleModel {
+
+    public static final String BASIC_DATA_SQL= "SELECT r.roleid as roleCode,r.rolename as roleName from role r ";
+
     int roleCode;
     String roleName;
 
