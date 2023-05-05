@@ -3,10 +3,14 @@ package tbs.utils.Async;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import tbs.utils.AOP.controller.IAction;
 import tbs.utils.Async.interfaces.AsyncToDo;
 import tbs.utils.Async.interfaces.IThreadLocker;
@@ -25,6 +29,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 @Configuration
 @EnableAsync
+@EnableScheduling
 public class DefaultAsyncConfig {
 
 
@@ -112,6 +117,7 @@ public class DefaultAsyncConfig {
 
     @Bean
     @ConditionalOnMissingBean(AsyncTaskExecutor.class)
+    @Primary
     AsyncTaskExecutor getExecutor() {
         ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
         threadPoolTaskExecutor.setCorePoolSize(16);
@@ -119,6 +125,7 @@ public class DefaultAsyncConfig {
         threadPoolTaskExecutor.setQueueCapacity(512);
         threadPoolTaskExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         threadPoolTaskExecutor.setWaitForTasksToCompleteOnShutdown(true);
+        threadPoolTaskExecutor.setThreadNamePrefix("asynctask-");
         threadPoolTaskExecutor.initialize();
         return threadPoolTaskExecutor;
     }

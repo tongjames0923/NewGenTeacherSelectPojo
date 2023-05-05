@@ -1,7 +1,13 @@
 package tbs.pojo;
 
+import tbs.utils.sql.annotations.SqlField;
+import tbs.utils.sql.annotations.Updateable;
+
+@Updateable(table = "role")
 public class Role {
+    @SqlField
     int roleid;
+    @SqlField
     String rolename;
 
     public int getRoleid() {

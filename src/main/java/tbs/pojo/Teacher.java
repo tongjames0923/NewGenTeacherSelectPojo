@@ -5,12 +5,24 @@ import tbs.utils.sql.annotations.Updateable;
 
 @Updateable(table = "teacher")
 public class Teacher {
+    /**
+     * 工号
+     */
     @SqlField
     String workNo;
+    /**
+     * 手机号
+     */
     @SqlField
     String phone;
+    /**
+     * 职位
+     */
     @SqlField
     String position;
+    /**
+     * 职称
+     */
     @SqlField
     String pro_title;
 

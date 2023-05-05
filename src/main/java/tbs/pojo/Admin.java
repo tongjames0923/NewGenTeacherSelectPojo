@@ -1,7 +1,14 @@
 package tbs.pojo;
 
+import tbs.utils.sql.annotations.SqlField;
+import tbs.utils.sql.annotations.Updateable;
+
+@Updateable(table = "admin")
 public class Admin {
-    private String adminToken,phone;
+    @SqlField
+    private String adminToken;
+    @SqlField
+    String phone;
 
     public String getAdminToken() {
         return adminToken;

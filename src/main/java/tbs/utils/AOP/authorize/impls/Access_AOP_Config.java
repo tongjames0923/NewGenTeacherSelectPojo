@@ -1,6 +1,7 @@
 package tbs.utils.AOP.authorize.impls;
 
 import io.netty.util.internal.StringUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -31,6 +32,7 @@ import java.util.function.Consumer;
  */
 @Aspect
 @Component
+@Slf4j
 public class Access_AOP_Config {
     @Resource
     HttpServletRequest request;
@@ -81,7 +83,6 @@ public class Access_AOP_Config {
     @Around("result()")
     NetResult handleResult(ProceedingJoinPoint joinPoint) throws Throwable {
         NetResult result = singleResult.get() == null ? new NetResult() : singleResult.get();
-
         Object[] objs = joinPoint.getArgs();
         if (objs[1] != null) {
             result = (NetResult) objs[1];
@@ -108,7 +109,6 @@ public class Access_AOP_Config {
         result.setMethodType(type);
         singleResult.set(result);
         try {
-
             BaseRoleModel roleModel = accessCheck(signature);
             Object[] params = joinPoint.getArgs();
             if (roleModel != null) {
@@ -119,10 +119,12 @@ public class Access_AOP_Config {
             result.setCode(NetResult.LIMITED_ACCESS);
             result.setMessage(authorizationFailureException.getMessage());
             result.setCost(-1);
+            log.error(authorizationFailureException.getMessage(), authorizationFailureException);
         } catch (Throwable throwable) {
             result.setCost(-1);
             result.setCode(NetResult.Unchecked_Exception);
             result.setMessage(throwable.getMessage());
+            log.error(throwable.getMessage(), throwable);
         }
         return result;
     }

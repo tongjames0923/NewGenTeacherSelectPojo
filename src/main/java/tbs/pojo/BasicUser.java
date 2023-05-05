@@ -1,8 +1,23 @@
 package tbs.pojo;
 
+import tbs.utils.sql.annotations.SqlField;
+import tbs.utils.sql.annotations.Updateable;
+
+@Updateable(table = "basicuser")
 public class BasicUser {
-    private String uid,name,password,phone;
-    private int role, departmentId;
+
+    @SqlField
+    private String uid;
+    @SqlField
+    private String name;
+    @SqlField
+    private String password;
+    @SqlField
+    private String phone;
+    @SqlField
+    private int role;
+    @SqlField
+    private int departmentId;
 
     public String getUid() {
         return uid;

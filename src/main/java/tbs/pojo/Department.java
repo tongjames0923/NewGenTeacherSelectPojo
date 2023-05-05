@@ -1,7 +1,15 @@
 package tbs.pojo;
 
+import tbs.utils.sql.annotations.SqlField;
+import tbs.utils.sql.annotations.Updateable;
+
+@Updateable(table = "department")
 public class Department {
-    private int id,parentId;
+    @SqlField
+    private int id;
+    @SqlField
+    private int parentId;
+    @SqlField
     private String departname;
 
     public int getId() {
