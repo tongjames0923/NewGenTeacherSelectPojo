@@ -8,9 +8,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import tbs.utils.AOP.controller.IAction;
 import tbs.utils.Async.interfaces.AsyncToDo;
 import tbs.utils.Async.interfaces.IThreadLocker;
@@ -20,11 +18,9 @@ import tbs.utils.Results.AsyncResult;
 import tbs.utils.Results.NetResult;
 import tbs.utils.error.NetError;
 
-import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
 
 @Configuration
@@ -71,7 +67,7 @@ public class DefaultAsyncConfig {
                     return key;
                 }, null, new AsyncToDo() {
                     @Override
-                    public void doSomething(AsyncResult async) {
+                    public void doSomething(AsyncResult async) throws Exception {
                         Object data = null;
                         try {
                             data = action.action(result);

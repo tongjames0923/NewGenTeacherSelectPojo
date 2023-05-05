@@ -86,7 +86,7 @@ public class AsyncWaitter {
             latch = new CountDownLatch((int) total);
         }
 
-        public void waitForDone() throws InterruptedException {
+        public void waitForDone() throws Exception {
             latch.await(1, TimeUnit.MINUTES);
         }
 
@@ -131,6 +131,7 @@ public class AsyncWaitter {
                 @Override
                 public void run() {
                     result.getLocker().lock(result.getSign());
+                    Exception ex=null;
                     try {
                         tasks.get(finalIndex).doSomething(result);
                         result.setSTATUS(DONE);

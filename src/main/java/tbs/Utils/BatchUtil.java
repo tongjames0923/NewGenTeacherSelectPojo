@@ -5,6 +5,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.LinkedList;
@@ -126,51 +127,41 @@ public class BatchUtil {
             }
         }
     }
-
-    private int execute() throws SqlExecuteListException {
-        SqlExecuteListException ex = null;
+    private int execute() throws Exception {
+        Exception ex = null;
         try {
             getSession();
             for (SqlUpdateExecute q : needExxcutes) {
-                try {
                     q.execute();
-                } catch (Exception e) {
-                    if (ex == null) {
-                        ex = new SqlExecuteListException();
-                    }
-                    ex.getExceptionList().add(e);
-                }
             }
             commitSession();
         } catch (Exception e) {
-            if (ex == null) {
-                ex = new SqlExecuteListException();
-            }
-            ex.getExceptionList().add(e);
             rollback();
+            ex=e;
         } finally {
             close();
         }
+
+        int cnt = needExxcutes.size();
+        needExxcutes.clear();
         if (ex != null) {
             throw ex;
         }
-        int cnt = needExxcutes.size();
-        needExxcutes.clear();
         return cnt;
     }
 
     DefaultNumberLimitCondition defaultNumberLimitCondition = new DefaultNumberLimitCondition(5);
 
-    public int batchUpdate(int maxSize, SqlUpdateExecute... executes) throws SqlExecuteListException {
+    public int batchUpdate(int maxSize, SqlUpdateExecute... executes) throws Exception {
         defaultNumberLimitCondition.setN(maxSize);
         return batchUpdate(defaultNumberLimitCondition, executes);
     }
 
-    public int flush() throws SqlExecuteListException {
+    public int flush() throws Exception {
         return execute();
     }
 
-    public int batchUpdate(ExecuteCondition executeCondition, SqlUpdateExecute... executes) throws SqlExecuteListException {
+    public int batchUpdate(ExecuteCondition executeCondition, SqlUpdateExecute... executes) throws Exception {
         for (SqlUpdateExecute execute : executes) {
             if (execute != null) {
                 needExxcutes.add(execute);

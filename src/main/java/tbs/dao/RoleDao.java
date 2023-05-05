@@ -13,7 +13,7 @@ import java.util.List;
 @Mapper
 public interface RoleDao {
     @Select("SELECT r.roleid as roleCode,r.rolename as roleName FROM basicuser bu JOIN role r ON r.roleid=bu.role WHERE bu.`phone`=#{phone} AND bu.`password`=#{password};")
-    @Cacheable(value = "role_user", key = "#phone")
+    @Cacheable(value = "role_user", key = "#phone",unless = "#result==null",cacheManager = RedisConfig.ShortTermCache)
     BaseRoleModel loginRole(String phone, String password);
 
 
