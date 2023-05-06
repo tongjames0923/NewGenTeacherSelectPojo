@@ -1,5 +1,6 @@
 package tbs.utils.AOP.authorize.impls;
 
+import com.alibaba.fastjson.JSON;
 import io.netty.util.internal.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -173,6 +174,7 @@ public class Access_AOP_Config {
     }
 
     private BaseRoleModel accessCheck(MethodSignature signature) throws AuthorizationFailureException {
+        log.info("invoke " + signature.getName());
         Method method = signature.getMethod();
         AccessRequire require = method.getAnnotation(AccessRequire.class);
         if (require != null) {
@@ -191,6 +193,7 @@ public class Access_AOP_Config {
                     roleMap.put(e.getRoleCode(), e);
                 }
             });
+            log.info("require role:" + JSON.toJSONString(roleMap));
             BaseRoleModel userrole = access.readRole(tk);
             if (userrole == null) {
                 throw new AuthorizationFailureException(String.format("无效密钥信息"));

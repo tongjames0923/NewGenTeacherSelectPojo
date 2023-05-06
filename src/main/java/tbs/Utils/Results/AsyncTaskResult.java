@@ -5,7 +5,7 @@ import tbs.utils.Async.interfaces.IThreadSign;
 
 import java.util.List;
 
-public class AsyncResult {
+public class AsyncTaskResult {
     private IThreadSign sign;
     private IThreadLocker locker;
 
@@ -45,7 +45,7 @@ public class AsyncResult {
     public static interface IDataChanged
     {
         public static final long STATUS_CHANGED=-1,DATA_CHANGED=-2;
-        void changed(AsyncResult self,long whatChanged);
+        void changed(AsyncTaskResult self, long whatChanged);
     }
 
     private IDataChanged changeEvent=null;
@@ -54,7 +54,7 @@ public class AsyncResult {
         this.changeEvent = changeEvent;
     }
 
-    public AsyncResult(IThreadLocker locker, IThreadSign sign)
+    public AsyncTaskResult(IThreadLocker locker, IThreadSign sign)
     {
         this.sign=sign;
         this.locker=locker;

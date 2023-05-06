@@ -9,16 +9,16 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static tbs.utils.Results.AsyncResult.DONE;
-import static tbs.utils.Results.AsyncResult.ERROR;
+import static tbs.utils.Results.AsyncTaskResult.DONE;
+import static tbs.utils.Results.AsyncTaskResult.ERROR;
 
 public class AsyncWaitter {
-    List<AsyncResult> asyncResults;
+    List<AsyncTaskResult> asyncResults;
     List<AsyncToDo> tasks;
 
     private AsyncTaskExecutor executor;
 
-    public AsyncWaitter(List<AsyncResult> asyncResults, List<AsyncToDo> tasks, Event event, AsyncTaskExecutor executor) {
+    public AsyncWaitter(List<AsyncTaskResult> asyncResults, List<AsyncToDo> tasks, Event event, AsyncTaskExecutor executor) {
         this.asyncResults = asyncResults;
         this.tasks = tasks;
         this.executor = executor;
@@ -26,14 +26,14 @@ public class AsyncWaitter {
     }
 
     public static interface Event {
-        void onSuccess(AsyncResult result);
+        void onSuccess(AsyncTaskResult result);
 
         default void onError(Exception e, String sign) {
             System.err.println(String.format("%s error!", sign));
             e.printStackTrace();
         }
 
-        default void dataChange(AsyncResult result) {
+        default void dataChange(AsyncTaskResult result) {
 
         }
     }
@@ -51,10 +51,10 @@ public class AsyncWaitter {
         return this;
     }
 
-    public class ResultStatusChange implements AsyncResult.IDataChanged {
+    public class ResultStatusor implements AsyncTaskResult.IDataChanged {
         private Event event;
-        List<AsyncResult> successList = new LinkedList<>();
-        List<AsyncResult> failList = new LinkedList<>();
+        List<AsyncTaskResult> successList = new LinkedList<>();
+        List<AsyncTaskResult> failList = new LinkedList<>();
         CountDownLatch latch;
 
 
@@ -68,11 +68,11 @@ public class AsyncWaitter {
             this.event = event;
         }
 
-        public List<AsyncResult> getSuccessList() {
+        public List<AsyncTaskResult> getSuccessList() {
             return successList;
         }
 
-        public List<AsyncResult> getFailList() {
+        public List<AsyncTaskResult> getFailList() {
             return failList;
         }
 
@@ -80,7 +80,7 @@ public class AsyncWaitter {
             return total;
         }
 
-        public ResultStatusChange(Event event, long total) {
+        public ResultStatusor(Event event, long total) {
             this.event = event;
             this.total = total;
             latch = new CountDownLatch((int) total);
@@ -91,7 +91,7 @@ public class AsyncWaitter {
         }
 
         @Override
-        public void changed(AsyncResult self, long whatChanged) {
+        public void changed(AsyncTaskResult self, long whatChanged) {
             if (whatChanged == STATUS_CHANGED) {
                 if (self.getSTATUS() == DONE) {
                     if (event != null) {
@@ -114,17 +114,17 @@ public class AsyncWaitter {
         }
     }
 
-    public ResultStatusChange execute() {
+    public ResultStatusor execute() {
         return execute(this.getEvent());
     }
 
-    public ResultStatusChange execute(Event e) {
+    public ResultStatusor execute(Event e) {
         if (CollectionUtil.isEmpty(asyncResults)) {
             return null;
         }
         int index = 0;
-        ResultStatusChange statusChange = new ResultStatusChange(e, asyncResults.size());
-        for (AsyncResult result : asyncResults) {
+        ResultStatusor statusChange = new ResultStatusor(e, asyncResults.size());
+        for (AsyncTaskResult result : asyncResults) {
             result.setChangeEvent(statusChange);
             int finalIndex = index;
             executor.execute(new Runnable() {
@@ -137,7 +137,7 @@ public class AsyncWaitter {
                         result.setSTATUS(DONE);
                     } catch (Exception e) {
                         result.setException(e);
-                        result.setSTATUS(AsyncResult.ERROR);
+                        result.setSTATUS(AsyncTaskResult.ERROR);
                     } finally {
                         result.getLocker().unlock(result.getSign());
                         statusChange.latch.countDown();

@@ -77,8 +77,8 @@ public class SQL_Tool {
         return builder.toString();
     }
 
-    public static <T, Q> String query(Class<T> tClass, Q qo, Page page, Sortable sortable) throws Exception {
-        Queryable queryable = tClass.getDeclaredAnnotation(Queryable.class);
+    public static <Q> String query( Q qo, Page page, Sortable sortable) throws Exception {
+        Queryable queryable = qo.getClass().getDeclaredAnnotation(Queryable.class);
         if (queryable == null) {
             throw new Exception("not find queryable in class");
         }

@@ -1,7 +1,7 @@
 package tbs.utils.Async.interfaces;
 
-import tbs.utils.Results.AsyncResult;
+import tbs.utils.Results.AsyncTaskResult;
 
 public interface AsyncToDo {
-    public void doSomething(AsyncResult result) throws Exception;
+    public void doSomething(AsyncTaskResult result) throws Exception;
 }

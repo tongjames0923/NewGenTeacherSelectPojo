@@ -3,7 +3,7 @@ package tbs.dao;
 import org.apache.ibatis.annotations.*;
 import org.springframework.cache.annotation.Cacheable;
 import tbs.dao.QO.StudentQO;
-import tbs.dao.impl.StudentDetailQueryImpl;
+import tbs.dao.impl.SQL_QueryImpl;
 import tbs.pojo.Student;
 import tbs.pojo.dto.StudentUserDetail;
 import tbs.utils.redis.RedisConfig;
@@ -24,7 +24,7 @@ public interface StudentDao {
     StudentUserDetail findStudentByPhone(String phone);
 
 
-    @SelectProvider(type = StudentDetailQueryImpl.class, method = "query")
+    @SelectProvider(type = SQL_QueryImpl.class, method = "query")
     List<StudentUserDetail> studentDetailQuery(StudentQO qo, Page page, Sortable sortable);
 
     @Select(StudentUserDetail.BASIC_DATA_SQL + " where bu.departmentId=#{department} limit #{beg},#{end}")

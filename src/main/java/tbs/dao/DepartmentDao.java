@@ -1,6 +1,7 @@
 package tbs.dao;
 
 import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.springframework.cache.annotation.CacheEvict;
@@ -30,4 +31,8 @@ public interface DepartmentDao {
     @Delete("DELETE FROM department WHERE id=#{id};")
     @CacheEvict(value = "dep_cache",key = "#id",cacheManager = RedisConfig.ShortTermCache)
     void deleteDepartment(int id);
+
+    @Insert("insert into department (id, parentId, departname) VALUES (#{id},#{parent},#{name})")
+    void save(int id,String name,int parent);
+
 }

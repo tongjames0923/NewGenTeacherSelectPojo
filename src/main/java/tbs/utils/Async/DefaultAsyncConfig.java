@@ -14,7 +14,7 @@ import tbs.utils.Async.interfaces.AsyncToDo;
 import tbs.utils.Async.interfaces.IThreadLocker;
 import tbs.utils.Async.interfaces.IThreadSign;
 import tbs.utils.EncryptionTool;
-import tbs.utils.Results.AsyncResult;
+import tbs.utils.Results.AsyncTaskResult;
 import tbs.utils.Results.NetResult;
 import tbs.utils.error.NetError;
 
@@ -67,7 +67,7 @@ public class DefaultAsyncConfig {
                     return key;
                 }, null, new AsyncToDo() {
                     @Override
-                    public void doSomething(AsyncResult async) throws Exception {
+                    public void doSomething(AsyncTaskResult async) throws Exception {
                         Object data = null;
                         try {
                             data = action.action(result);
