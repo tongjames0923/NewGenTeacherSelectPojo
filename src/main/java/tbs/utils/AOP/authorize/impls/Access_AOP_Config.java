@@ -18,8 +18,10 @@ import tbs.utils.AOP.authorize.error.AuthorizationFailureException;
 import tbs.utils.AOP.authorize.interfaces.IAccess;
 import tbs.utils.AOP.authorize.interfaces.IPermissionVerification;
 import tbs.utils.AOP.authorize.model.BaseRoleModel;
+import tbs.utils.AOP.authorize.model.SystemExecutionData;
+import tbs.utils.AOP.controller.ApiProxy;
+import tbs.utils.AOP.controller.IAction;
 import tbs.utils.Async.annotations.AsyncReturnFunction;
-import tbs.utils.error.NetError;
 import tbs.utils.Results.NetResult;
 
 import javax.annotation.Resource;
@@ -43,9 +45,6 @@ public class Access_AOP_Config {
     @Resource
     IPermissionVerification permissionVerification;
 
-    ThreadLocal<String> sessionToken = new ThreadLocal<>();
-
-    ThreadLocal<NetResult> singleResult = new ThreadLocal<>();
 
     @Bean
     @ConditionalOnMissingBean(IAccess.class)
@@ -69,34 +68,10 @@ public class Access_AOP_Config {
         };
     }
 
+    @Resource
+    ApiProxy apiProxy;
+
     @Pointcut("@annotation(org.springframework.web.bind.annotation.RequestMapping)")
-    public void apiInto() {
-
-    }
-
-
-    @Pointcut("execution(public tbs.utils.Results.NetResult tbs.utils.AOP.controller.ApiProxy.method(..))")
-    public void result() {
-
-    }
-
-
-    @Around("result()")
-    NetResult handleResult(ProceedingJoinPoint joinPoint) throws Throwable {
-        NetResult result = singleResult.get() == null ? new NetResult() : singleResult.get();
-        Object[] objs = joinPoint.getArgs();
-        if (objs[1] != null) {
-            result = (NetResult) objs[1];
-        }
-        objs[1] = result;
-        result = (NetResult) joinPoint.proceed(objs);
-
-        return result;
-
-    }
-
-
-    @Pointcut("(execution(public tbs.utils.Results.NetResult *.*(..))&&@annotation(tbs.utils.AOP.authorize.annotations.AccessRequire))||@annotation(org.springframework.web.bind.annotation.RequestMapping)")
     public void access() {
     }
 
@@ -104,43 +79,50 @@ public class Access_AOP_Config {
     @Around("access()")
     NetResult handleSafe(ProceedingJoinPoint joinPoint) {
         NetResult result = new NetResult();
+        SystemExecutionData executionData = new SystemExecutionData();
+        executionData.setRequestBeginTime(new Date());
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         NetResult.MethodType type = signature.getMethod().getAnnotation(AsyncReturnFunction.class) != null ?
                 NetResult.MethodType.AsynchronousDelay : NetResult.MethodType.Immediately;
         result.setMethodType(type);
-        singleResult.set(result);
+        executionData.setMethodType(type);
         try {
-            BaseRoleModel roleModel = accessCheck(signature);
+            BaseRoleModel roleModel = accessCheck(signature, executionData);
+            executionData.setInvokeRole(roleModel);
             Object[] params = joinPoint.getArgs();
-            if (roleModel != null) {
-                params = appendUserRole(roleModel, signature, params);
-            }
-            result = (NetResult) joinPoint.proceed(params);
+            params = appendSystemData(executionData, signature, params);
+            final Object[] fparams = params;
+            result = apiProxy.method(new IAction() {
+                @Override
+                public Object action(NetResult result) throws Throwable {
+                    return joinPoint.proceed(fparams);
+                }
+            }, result);
         } catch (AuthorizationFailureException authorizationFailureException) {
             result.setCode(NetResult.LIMITED_ACCESS);
             result.setMessage(authorizationFailureException.getMessage());
-            result.setCost(-1);
-            log.error(authorizationFailureException.getMessage(), authorizationFailureException);
         } catch (Throwable throwable) {
-            result.setCost(-1);
             result.setCode(NetResult.Unchecked_Exception);
             result.setMessage(throwable.getMessage());
             log.error(throwable.getMessage(), throwable);
+        } finally {
+            executionData.setRequestEndTime(new Date());
+            result.setCost(executionData.getRequestEndTime().getTime()-executionData.getRequestBeginTime().getTime());
         }
         return result;
     }
 
-    Object[] appendUserRole(BaseRoleModel roleModel, MethodSignature signature, Object[] params) {
+    Object[] appendSystemData(SystemExecutionData data, MethodSignature signature, Object[] params) {
         int index = 0;
         boolean flag = false;
         for (; index < signature.getParameterTypes().length; index++) {
-            if (signature.getParameterTypes()[index].equals(BaseRoleModel.class)) {
+            if (signature.getParameterTypes()[index].equals(SystemExecutionData.class)) {
                 flag = true;
                 break;
             }
         }
         if (flag) {
-            params[index] = roleModel;
+            params[index] = data;
         }
         return params;
     }
@@ -160,7 +142,6 @@ public class Access_AOP_Config {
                 token = null;
             }
         }
-        sessionToken.set(token);
         return token;
     }
 
@@ -173,7 +154,7 @@ public class Access_AOP_Config {
         }
     }
 
-    private BaseRoleModel accessCheck(MethodSignature signature) throws AuthorizationFailureException {
+    private BaseRoleModel accessCheck(MethodSignature signature, SystemExecutionData data) throws AuthorizationFailureException {
         log.info("invoke " + signature.getName());
         Method method = signature.getMethod();
         AccessRequire require = method.getAnnotation(AccessRequire.class);
@@ -199,10 +180,8 @@ public class Access_AOP_Config {
                 throw new AuthorizationFailureException(String.format("无效密钥信息"));
             }
             IPermissionVerification.VerificationConclusion conclusion = permissionVerification.accessCheck(userrole, roleMap);
-            NetResult result = this.singleResult.get();
-            result.setAuthType(conclusion);
-            result.setInvokeToken(tk);
-            singleResult.set(result);
+            data.setAuthType(conclusion);
+            data.setInvokeToken(tk);
             if (conclusion == IPermissionVerification.VerificationConclusion.UnAuthorized) {
                 throw new AuthorizationFailureException(String.format("您的权限%s级别，无法进行此操作", userrole.getRoleName()));
             }

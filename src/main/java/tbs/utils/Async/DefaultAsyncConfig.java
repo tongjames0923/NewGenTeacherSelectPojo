@@ -1,5 +1,6 @@
 package tbs.utils.Async;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +27,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Configuration
 @EnableAsync
 @EnableScheduling
+@Slf4j
 public class DefaultAsyncConfig {
 
 
@@ -69,14 +71,21 @@ public class DefaultAsyncConfig {
                     @Override
                     public void doSomething(AsyncTaskResult async) throws Exception {
                         Object data = null;
+                        Throwable ex = null;
                         try {
                             data = action.action(result);
-                        } catch (Exception e) {
-                            data = e;
+                        } catch (Throwable e) {
+                            ex = e;
                         }
                         NetResult.AsyncDelayResult delayResult1 = new NetResult.AsyncDelayResult(taskKey);
-                        delayResult1.setData(data);
-                        delayResult1.setStatus(NetResult.AsyncDelayResult.DONE);
+                        if (ex != null) {
+                            delayResult1.setData(ex.getMessage());
+                            delayResult1.setStatus(NetResult.AsyncDelayResult.ERROR);
+                            log.error("异步延迟请求错误:"+ex.getMessage(),ex);
+                        } else {
+                            delayResult1.setData(data);
+                            delayResult1.setStatus(NetResult.AsyncDelayResult.DONE);
+                        }
                         post(taskKey, delayResult1);
                     }
                 }).execute();

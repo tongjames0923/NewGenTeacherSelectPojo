@@ -34,7 +34,7 @@ public class NetResult<T> {
 
 
     public static class AsyncDelayResult {
-        public static final String RUNNING="运行中",DONE="完成";
+        public static final String RUNNING="运行中",DONE="完成",ERROR="错误";
         private String invokePath;
 
         private String status=RUNNING;
