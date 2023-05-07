@@ -6,6 +6,8 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface SqlField {
+
+    boolean isPrimary()default false;
     String field() default "";
     int index()default 0;
 }

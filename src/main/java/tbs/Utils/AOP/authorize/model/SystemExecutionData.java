@@ -1,10 +1,11 @@
 package tbs.utils.AOP.authorize.model;
 
+import lombok.ToString;
 import tbs.utils.AOP.authorize.interfaces.IPermissionVerification;
 import tbs.utils.Results.NetResult;
 
 import java.util.Date;
-
+@ToString
 public class SystemExecutionData {
     private String invokeToken;
     private Date requestBeginTime;

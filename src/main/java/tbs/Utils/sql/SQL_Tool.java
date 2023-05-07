@@ -19,6 +19,16 @@ public class SQL_Tool {
 
     private static class SqlFieldItem {
         private String field, value;
+        boolean isPrimary = false;
+
+        public boolean isPrimary() {
+            return isPrimary;
+        }
+
+        public void setPrimary(boolean primary) {
+            isPrimary = primary;
+        }
+
         private int index = 0;
 
         public String getField() {
@@ -57,6 +67,8 @@ public class SQL_Tool {
             }
             field.setAccessible(true);
             SqlFieldItem fieldItem = new SqlFieldItem();
+            if (f.isPrimary())
+                fieldItem.setPrimary(true);
             fieldItem.setIndex(f.index());
             fieldItem.setField(StringUtils.isEmpty(f.field()) ? field.getName() : f.field());
             Object v = field.get(qo);
@@ -77,7 +89,7 @@ public class SQL_Tool {
         return builder.toString();
     }
 
-    public static <Q> String query( Q qo, Page page, Sortable sortable) throws Exception {
+    public static <Q> String query(Q qo, Page page, Sortable sortable) throws Exception {
         Queryable queryable = qo.getClass().getDeclaredAnnotation(Queryable.class);
         if (queryable == null) {
             throw new Exception("not find queryable in class");
@@ -160,7 +172,7 @@ public class SQL_Tool {
 
         @Override
         public String singleItem(SqlFieldItem item, int index, String now) {
-            if(StringUtils.isEmpty(item.value))
+            if (StringUtils.isEmpty(item.value))
                 return "NULL";
             return "'" + item.value + "'";
         }
@@ -186,8 +198,47 @@ public class SQL_Tool {
             throw new Exception("empty field for " + data.getClass());
         StringBuilder builder = new StringBuilder("insert into " + updateable.table() + " ");
         String feilds = "(" + ListToStr(items, ",", fieldItemStringConnector) + ")";
-        String values = "(" + ListToStr(items, ",", valueItemStringConnector)+")";
+        String values = "(" + ListToStr(items, ",", valueItemStringConnector) + ")";
         builder.append(feilds).append(" values ").append(values);
+        return builder.toString();
+    }
+
+    public static <Q> String update(Q data) throws Exception {
+        Updateable updateable = data.getClass().getDeclaredAnnotation(Updateable.class);
+        if (updateable == null) {
+            throw new Exception("not find updateable in class");
+        }
+
+        List<SqlFieldItem> items = qoToList(data);
+        if (CollectionUtils.isEmpty(items))
+            throw new Exception("empty field for " + data.getClass());
+        StringBuilder builder = new StringBuilder("UPDATE ").append(updateable.table()).append(" SET ");
+        final SqlFieldItem[] p = {null};
+        builder.append(ListToStr(items, " ", new StringConnector<SqlFieldItem>() {
+            @Override
+            public String singleItem(SqlFieldItem item, int index, String now) {
+                if (item.isPrimary()) {
+                    p[0] = item;
+                    return "";
+                }
+                String v = "";
+                if (!StringUtils.isEmpty(item.value))
+                    v = "`" + item.field + "` = '" + item.value + "'";
+                if (!StringUtils.isEmpty(now) && !StringUtils.isEmpty(v))
+                    return "," + v;
+                return v;
+            }
+
+            @Override
+            public int connectPosition(SqlFieldItem item, int index, String now) {
+                if (StringUtils.isEmpty(item.value) || StringUtils.isEmpty(now))
+                    return 0;
+                return -index;
+            }
+        }));
+        if (p[0] == null || StringUtils.isEmpty(p[0].value))
+            throw new Exception("不存在主键，无法更新");
+        builder.append(" WHERE ").append("`").append(p[0].field).append("`='").append(p[0].value).append("'");
         return builder.toString();
     }
 
