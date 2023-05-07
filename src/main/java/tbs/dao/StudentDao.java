@@ -1,9 +1,11 @@
 package tbs.dao;
 
 import org.apache.ibatis.annotations.*;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import tbs.dao.QO.StudentQO;
 import tbs.dao.impl.SQL_QueryImpl;
+import tbs.dao.impl.SqlUpdateImpl;
 import tbs.pojo.Student;
 import tbs.pojo.dto.StudentUserDetail;
 import tbs.utils.redis.RedisConfig;
@@ -22,6 +24,10 @@ public interface StudentDao {
     @Select(StudentUserDetail.BASIC_DATA_SQL + "where bu.phone=#{phone}")
     @Cacheable(cacheManager = RedisConfig.ShortTermCache, key = "#phone", value = "studentInfo")
     StudentUserDetail findStudentByPhone(String phone);
+
+    @UpdateProvider(type = SqlUpdateImpl.class, method = "update")
+    @CacheEvict(key = "#student.phone", value = "studentInfo")
+    void updateStudent(Student student);
 
 
     @SelectProvider(type = SQL_QueryImpl.class, method = "query")

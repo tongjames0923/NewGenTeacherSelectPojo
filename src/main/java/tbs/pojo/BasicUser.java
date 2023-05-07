@@ -1,9 +1,11 @@
 package tbs.pojo;
 
+import lombok.ToString;
 import tbs.utils.sql.annotations.SqlField;
 import tbs.utils.sql.annotations.Updateable;
 
 @Updateable(table = "basicuser")
+@ToString
 public class BasicUser {
 
     @SqlField
@@ -12,12 +14,12 @@ public class BasicUser {
     private String name;
     @SqlField
     private String password;
-    @SqlField
+    @SqlField(isPrimary = true)
     private String phone;
     @SqlField
-    private int role;
+    private Integer role;
     @SqlField
-    private int departmentId;
+    private Integer departmentId;
 
     public String getUid() {
         return uid;
@@ -51,19 +53,19 @@ public class BasicUser {
         this.phone = phone;
     }
 
-    public int getRole() {
+    public Integer getRole() {
         return role;
     }
 
-    public void setRole(int role) {
+    public void setRole(Integer role) {
         this.role = role;
     }
 
-    public int getDepartmentId() {
+    public Integer getDepartmentId() {
         return departmentId;
     }
 
-    public void setDepartmentId(int departmentId) {
+    public void setDepartmentId(Integer departmentId) {
         this.departmentId = departmentId;
     }
 }

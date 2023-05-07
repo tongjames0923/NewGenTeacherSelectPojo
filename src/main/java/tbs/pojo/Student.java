@@ -9,11 +9,13 @@ public class Student {
     private String studentNo;
     @SqlField
     String cla;
-    @SqlField
+    @SqlField(isPrimary = true)
     String phone;
     @SqlField
     String masterPhone;
-    private int grade;
+
+    @SqlField
+    private Integer grade;
 
 
     public String getMasterPhone() {
@@ -48,11 +50,11 @@ public class Student {
         this.phone = phone;
     }
 
-    public int getGrade() {
+    public Integer getGrade() {
         return grade;
     }
 
-    public void setGrade(int grade) {
+    public void setGrade(Integer grade) {
         this.grade = grade;
     }
 }

@@ -13,4 +13,13 @@ public class SqlUpdateImpl {
         }
         return "";
     }
+    public String update(Object obj)
+    {
+        try {
+            return SQL_Tool.update(obj);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return "";
+    }
 }

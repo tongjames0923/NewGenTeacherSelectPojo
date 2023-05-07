@@ -89,6 +89,8 @@ public class Access_AOP_Config {
         try {
             BaseRoleModel roleModel = accessCheck(signature, executionData);
             executionData.setInvokeRole(roleModel);
+            result.setAuthType(executionData.getAuthType());
+            result.setInvokeToken(executionData.getInvokeToken());
             Object[] params = joinPoint.getArgs();
             params = appendSystemData(executionData, signature, params);
             final Object[] fparams = params;
@@ -187,6 +189,8 @@ public class Access_AOP_Config {
             }
             return userrole;
         }
+        data.setAuthType(IPermissionVerification.VerificationConclusion.NO_NEED);
+        data.setInvokeToken("匿名用户");
         return null;
     }
 

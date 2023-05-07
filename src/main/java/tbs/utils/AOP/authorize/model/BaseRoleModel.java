@@ -1,8 +1,9 @@
 package tbs.utils.AOP.authorize.model;
 
 
+import lombok.ToString;
 import org.apache.ibatis.annotations.Select;
-
+@ToString
 public class BaseRoleModel {
 
     public static final String BASIC_DATA_SQL= "SELECT r.roleid as roleCode,r.rolename as roleName from role r ";
@@ -36,11 +37,4 @@ public class BaseRoleModel {
         this.roleName = roleName;
     }
 
-    @Override
-    public String toString() {
-        return "BaseRoleModel{" +
-                "roleCode=" + roleCode +
-                ", roleName='" + roleName + '\'' +
-                '}';
-    }
 }

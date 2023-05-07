@@ -1,9 +1,10 @@
 package tbs.utils.Results;
 
+import lombok.ToString;
 import tbs.utils.AOP.authorize.interfaces.IPermissionVerification;
 import tbs.utils.AOP.controller.IAction;
 import tbs.utils.error.NetError;
-
+@ToString
 public class NetResult<T> {
     public static enum MethodType {
         Immediately("即时响应", 1), AsynchronousDelay("异步延迟", 2);
@@ -33,6 +34,7 @@ public class NetResult<T> {
     }
 
 
+    @ToString
     public static class AsyncDelayResult {
         public static final String RUNNING="运行中",DONE="完成",ERROR="错误";
         private String invokePath;

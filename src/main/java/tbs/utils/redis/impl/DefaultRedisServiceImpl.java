@@ -1,6 +1,7 @@
 package tbs.utils.redis.impl;
 
 import com.alibaba.fastjson.JSON;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,7 @@ import java.util.concurrent.TimeUnit;
  * @author abstergo
  */
 @Component
+@Slf4j
 public class DefaultRedisServiceImpl implements IRedisService {
 
     @Resource
@@ -25,6 +27,7 @@ public class DefaultRedisServiceImpl implements IRedisService {
             String json = template.opsForValue().get(key);
             return JSON.parseObject(json, tClass);
         } catch (Exception e) {
+            log.error(e.getMessage(),e);
             return null;
         }
     }
@@ -35,6 +38,7 @@ public class DefaultRedisServiceImpl implements IRedisService {
             String json = template.opsForValue().get(key);
             return JSON.parseArray(json, tClass);
         } catch (Exception e) {
+            log.error(e.getMessage(),e);
             return null;
         }
     }

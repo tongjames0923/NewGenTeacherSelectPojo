@@ -13,7 +13,7 @@ public class Teacher {
     /**
      * 手机号
      */
-    @SqlField
+    @SqlField(isPrimary = true)
     String phone;
     /**
      * 职位
