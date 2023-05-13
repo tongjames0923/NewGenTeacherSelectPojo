@@ -2,12 +2,7 @@ package tbs.utils.Async.interfaces;
 
 import java.util.List;
 
-public interface IThreadLocker {
-    boolean isLock(IThreadSign sign);
-
-    void lock(IThreadSign sign);
-
-    void unlock(IThreadSign sign);
+public interface IThreadLocker extends ILocker {
 
     <T> void putObject(IThreadSign sign,T obj);
 

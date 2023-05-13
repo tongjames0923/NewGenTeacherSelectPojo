@@ -11,9 +11,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import tbs.utils.AOP.controller.IAction;
-import tbs.utils.Async.interfaces.AsyncToDo;
-import tbs.utils.Async.interfaces.IThreadLocker;
-import tbs.utils.Async.interfaces.IThreadSign;
+import tbs.utils.Async.interfaces.*;
 import tbs.utils.EncryptionTool;
 import tbs.utils.Results.AsyncTaskResult;
 import tbs.utils.Results.NetResult;
@@ -23,6 +21,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.function.Function;
 
 @Configuration
 @EnableAsync
@@ -42,6 +41,35 @@ public class DefaultAsyncConfig {
             @Override
             public String key() {
                 return key;
+            }
+        };
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(ILockProxy.class)
+    ILockProxy iLockProxy(ILocker locker) {
+        return new ILockProxy() {
+
+            @Override
+            public Object run(Function< ILocker,Object> f, String lockName) {
+                IThreadSign threadSign = new IThreadSign() {
+                    String key = "LOCK"+lockName;
+
+                    @Override
+                    public String key() {
+                        return key;
+                    }
+                };
+                Object data=null;
+                locker.lock(threadSign);
+                try {
+                    data = f.apply(locker);
+                } catch (Exception e) {
+                    log.error(e.getMessage(), e);
+                } finally {
+                    locker.unlock(threadSign);
+                }
+                return data;
             }
         };
     }
@@ -81,7 +109,7 @@ public class DefaultAsyncConfig {
                         if (ex != null) {
                             delayResult1.setData(ex.getMessage());
                             delayResult1.setStatus(NetResult.AsyncDelayResult.ERROR);
-                            log.error("异步延迟请求错误:"+ex.getMessage(),ex);
+                            log.error("异步延迟请求错误:" + ex.getMessage(), ex);
                         } else {
                             delayResult1.setData(data);
                             delayResult1.setStatus(NetResult.AsyncDelayResult.DONE);

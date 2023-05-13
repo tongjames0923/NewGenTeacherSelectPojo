@@ -8,9 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -58,14 +56,14 @@ public class BatchUtil {
         public void execute();
     }
 
-    public interface SqlSelectExecute {
+    public interface SqlSelectExecute<T> {
         /**
          * 使用本工具的getMapper方法获取mapper并执行select操作
          *
          * @param <T>
          * @return
          */
-        public <T> List<T> select();
+        public List<T> select();
     }
 
     public <T> T getMapper(Class<T> m) {
@@ -177,10 +175,25 @@ public class BatchUtil {
         return execute();
     }
 
-    public <T> List<T> select(SqlSelectExecute... selectExecutes) {
+    public <T> List<T> select(Collection<SqlSelectExecute<T>> selectExecutes) {
         List<T> result = new LinkedList<>();
+        getSession();
+        for(SqlSelectExecute execute:selectExecutes)
+        {
+            try {
+                result.addAll(execute.select());
+            }catch (Exception e)
+            {
 
+            }
+        }
+        close();
         return result;
+    }
+
+
+    public <T> List<T> select(SqlSelectExecute<T>... selectExecutes) {
+        return select(Arrays.asList(selectExecutes));
     }
 
 }
