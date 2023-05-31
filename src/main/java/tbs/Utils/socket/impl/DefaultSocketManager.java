@@ -3,6 +3,7 @@ package tbs.utils.socket.impl;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import tbs.utils.socket.ISocketClient;
 import tbs.utils.socket.ISocketManager;
 import tbs.utils.socket.model.SocketSendMessage;
 
@@ -14,12 +15,12 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 @Slf4j
 public class DefaultSocketManager implements ISocketManager {
-    ConcurrentHashMap<String, Session> socketPool = new ConcurrentHashMap<>();
+    ConcurrentHashMap<String, ISocketClient> socketPool = new ConcurrentHashMap<>();
     ConcurrentHashMap<String, List<MessageEvent>> eventsMap = new ConcurrentHashMap<>();
 
 
     @Override
-    public Session getSockets(String key) {
+    public ISocketClient getSockets(String key) {
         if (socketPool.containsKey(key))
             return socketPool.get(key);
         return null;
@@ -36,13 +37,13 @@ public class DefaultSocketManager implements ISocketManager {
     }
 
     @Override
-    public int putSocket(String key, Session socket) {
-        if (socketPool.containsKey(key)) {
-            log.debug("SOCKET 重复KEY " + key);
+    public int putSocket(ISocketClient socket) {
+        if (socketPool.containsKey(socket.key())) {
+            log.debug("SOCKET 重复KEY " + socket.key());
             return DUPLICATEKEY;
         }
 
-        socketPool.put(key, socket);
+        socketPool.put(socket.key(), socket);
         return SUCCESS;
     }
 
@@ -53,12 +54,8 @@ public class DefaultSocketManager implements ISocketManager {
             return EMPTYKEY;
         }
         try {
-            Session socket = socketPool.get(key);
-            SocketSendMessage sendMessage = new SocketSendMessage();
-            sendMessage.setSendTime(new Date());
-            sendMessage.setKey(key);
-            sendMessage.setData(data);
-            socket.getBasicRemote().sendText(JSON.toJSONString(sendMessage));
+            ISocketClient socket = socketPool.get(key);
+            socket.send(data, service);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             socketPool.remove(key);

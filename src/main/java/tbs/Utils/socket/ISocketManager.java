@@ -15,12 +15,12 @@ public interface ISocketManager {
     {
         void consume(SocketReceiveMessage receiveMessage);
     }
-    Session getSockets(String key);
+    ISocketClient getSockets(String key);
 
     Enumeration<String> all();
     void remove(String key);
 
-    int putSocket(String key, Session socket);
+    int putSocket(ISocketClient socketClient);
 
     int sendMessage(Object data,String key,String service);
 
