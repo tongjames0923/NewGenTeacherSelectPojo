@@ -1,6 +1,7 @@
 package tbs.utils.Async;
 
 import cn.hutool.extra.spring.SpringUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.stereotype.Component;
 import tbs.utils.Async.interfaces.AsyncToDo;
@@ -20,6 +21,7 @@ import java.util.concurrent.Future;
  * @author abstergo
  */
 @Component
+@Slf4j
 public class ThreadUtil {
     @Resource
     AsyncTaskExecutor executor;
@@ -47,6 +49,7 @@ public class ThreadUtil {
         try {
             work.work();
         } catch (Exception e) {
+            log.error(e.getMessage(),e);
             ex = e;
         } finally {
             after(sign,locker);
@@ -71,6 +74,7 @@ public class ThreadUtil {
             }
             AsyncTaskResult result = new AsyncTaskResult(locker, sign);
             results.add(result);
+            log.debug("ASYNC TASK CREATE "+sign.key());
         }
         return new AsyncWaitter(results, tasks, null, executor);
     }

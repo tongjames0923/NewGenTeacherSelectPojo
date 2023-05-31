@@ -1,5 +1,6 @@
 package tbs.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -16,8 +17,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 @Component
 @Scope("prototype")
+@Slf4j
 public class BatchUtil {
     private static final int STATUS_SAVED = -1;
+
+
     @Resource
     SqlSessionFactory sqlSessionFactory;
 
@@ -184,7 +188,7 @@ public class BatchUtil {
                 result.addAll(execute.select());
             }catch (Exception e)
             {
-
+                log.error("批量执行Select SQL异常",e);
             }
         }
         close();

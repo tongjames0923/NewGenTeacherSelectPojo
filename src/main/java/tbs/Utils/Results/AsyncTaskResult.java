@@ -1,10 +1,12 @@
 package tbs.utils.Results;
 
+import lombok.extern.slf4j.Slf4j;
 import tbs.utils.Async.interfaces.IThreadLocker;
 import tbs.utils.Async.interfaces.IThreadSign;
 
 import java.util.List;
 
+@Slf4j
 public class AsyncTaskResult {
     private IThreadSign sign;
     private IThreadLocker locker;
@@ -37,7 +39,7 @@ public class AsyncTaskResult {
                 changeEvent.changed(this,IDataChanged.STATUS_CHANGED);
             }catch (Exception e)
             {
-                e.printStackTrace();
+                log.error("调用异步状态监听异常",e);
             }
         }
     }
@@ -81,7 +83,7 @@ public class AsyncTaskResult {
                     changeEvent.changed(this,IDataChanged.DATA_CHANGED);
                 }catch (Exception e)
                 {
-                    e.printStackTrace();
+                    log.error("调用异步状态监听异常",e);
                 }
             }
             return true;

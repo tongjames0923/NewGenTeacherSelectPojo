@@ -39,6 +39,11 @@ public class DefaultAsyncConfig {
             String key = "asyncTaskSign_" + UUID.randomUUID().toString();
 
             @Override
+            public String toString() {
+                return key;
+            }
+
+            @Override
             public String key() {
                 return key;
             }
@@ -51,16 +56,16 @@ public class DefaultAsyncConfig {
         return new ILockProxy() {
 
             @Override
-            public Object run(Function< ILocker,Object> f, String lockName) {
+            public Object run(Function<ILocker, Object> f, String lockName) {
                 IThreadSign threadSign = new IThreadSign() {
-                    String key = "LOCK"+lockName;
+                    String key = "LOCK" + lockName;
 
                     @Override
                     public String key() {
                         return key;
                     }
                 };
-                Object data=null;
+                Object data = null;
                 locker.lock(threadSign);
                 try {
                     data = f.apply(locker);
@@ -128,7 +133,7 @@ public class DefaultAsyncConfig {
                     dataSource.put(key, o);
                     return true;
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.error(e.getMessage(), e);
                 }
                 return false;
             }

@@ -1,6 +1,7 @@
 package tbs.utils.Results;
 
 import cn.hutool.core.collection.CollectionUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.task.AsyncTaskExecutor;
 import tbs.utils.Async.interfaces.AsyncToDo;
 
@@ -12,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import static tbs.utils.Results.AsyncTaskResult.DONE;
 import static tbs.utils.Results.AsyncTaskResult.ERROR;
 
+@Slf4j
 public class AsyncWaitter {
     List<AsyncTaskResult> asyncResults;
     List<AsyncToDo> tasks;
@@ -29,7 +31,7 @@ public class AsyncWaitter {
         void onSuccess(AsyncTaskResult result);
 
         default void onError(Exception e, String sign) {
-            System.err.println(String.format("%s error!", sign));
+            log.error("sign :" + sign + "." + e.getMessage(), e);
             e.printStackTrace();
         }
 
@@ -131,7 +133,7 @@ public class AsyncWaitter {
                 @Override
                 public void run() {
                     result.getLocker().lock(result.getSign());
-                    Exception ex=null;
+                    Exception ex = null;
                     try {
                         tasks.get(finalIndex).doSomething(result);
                         result.setSTATUS(DONE);
@@ -145,6 +147,7 @@ public class AsyncWaitter {
                 }
             });
             index++;
+            log.debug("执行异步:" + result.getSign().key());
         }
         return statusChange;
     }
