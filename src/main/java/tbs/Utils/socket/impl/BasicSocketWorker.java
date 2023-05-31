@@ -1,12 +1,10 @@
 package tbs.utils.socket.impl;
 
-import cn.hutool.extra.spring.SpringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import tbs.utils.AOP.authorize.interfaces.IAccess;
 import tbs.utils.AOP.authorize.model.BaseRoleModel;
-import tbs.utils.Async.ThreadUtil;
 import tbs.utils.socket.ISocketClient;
 import tbs.utils.socket.ISocketManager;
 import tbs.utils.socket.ISocketWorker;
@@ -65,16 +63,18 @@ public abstract class BasicSocketWorker implements ISocketWorker {
         customAccept(client, baseRoleModel);
         socketManager.putSocket(client);
         keys.add(client.key());
+        log.debug("connected for {}.key :{}",serviceName(),client.key());
     }
 
     @Override
     public void onClose(ISocketClient client) {
         keys.remove(client.key());
         socketManager.remove(client.key());
+        log.debug("disconnected for {}.key :{}",serviceName(),client.key());
     }
 
     @Override
-    public void onError(Exception e) {
+    public void onError(Throwable e) {
         log.error("SOCKET ERROR ", e);
     }
 
