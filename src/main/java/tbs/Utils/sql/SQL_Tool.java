@@ -10,7 +10,9 @@ import tbs.utils.sql.query.Sortable;
 import tbs.utils.sql.annotations.SqlField;
 
 import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -55,7 +57,7 @@ public class SQL_Tool {
             this.index = index;
         }
     }
-
+    static SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static <Q> List<SqlFieldItem> qoToList(Q qo) throws IllegalAccessException {
         Class qClass = qo.getClass();
         Field[] fields = qClass.getDeclaredFields();
@@ -66,6 +68,7 @@ public class SQL_Tool {
                 continue;
             }
             field.setAccessible(true);
+
             SqlFieldItem fieldItem = new SqlFieldItem();
             if (f.isPrimary())
                 fieldItem.setPrimary(true);
@@ -73,6 +76,13 @@ public class SQL_Tool {
             fieldItem.setField(StringUtils.isEmpty(f.field()) ? field.getName() : f.field());
             Object v = field.get(qo);
             if (v != null) {
+                if(v.getClass().equals(Date.class))
+                {
+                    Date d=(Date) v;
+
+                    fieldItem.setValue(format.format(d));
+                }
+                else
                 fieldItem.setValue(v.toString());
             }
             items.add(fieldItem);
@@ -188,6 +198,15 @@ public class SQL_Tool {
 
     public static <Q> String insert(Q data) throws Exception {
 
+        UpdateInnerInfo innerInfo = getUpdateInnerInfo(data);
+        StringBuilder builder = new StringBuilder("insert into " + innerInfo.updateable.table() + " ");
+        String feilds = "(" + ListToStr(innerInfo.items, ",", fieldItemStringConnector) + ")";
+        String values = "(" + ListToStr(innerInfo.items, ",", valueItemStringConnector) + ")";
+        builder.append(feilds).append(" values ").append(values);
+        return builder.toString();
+    }
+
+    private static <Q> UpdateInnerInfo getUpdateInnerInfo(Q data) throws Exception {
         Updateable updateable = data.getClass().getDeclaredAnnotation(Updateable.class);
         if (updateable == null) {
             throw new Exception("not find updateable in class");
@@ -196,11 +215,18 @@ public class SQL_Tool {
         List<SqlFieldItem> items = qoToList(data);
         if (CollectionUtils.isEmpty(items))
             throw new Exception("empty field for " + data.getClass());
-        StringBuilder builder = new StringBuilder("insert into " + updateable.table() + " ");
-        String feilds = "(" + ListToStr(items, ",", fieldItemStringConnector) + ")";
-        String values = "(" + ListToStr(items, ",", valueItemStringConnector) + ")";
-        builder.append(feilds).append(" values ").append(values);
-        return builder.toString();
+        UpdateInnerInfo innerInfo = new UpdateInnerInfo(updateable, items);
+        return innerInfo;
+    }
+
+    private static class UpdateInnerInfo {
+        public final Updateable updateable;
+        public final List<SqlFieldItem> items;
+
+        public UpdateInnerInfo(Updateable updateable, List<SqlFieldItem> items) {
+            this.updateable = updateable;
+            this.items = items;
+        }
     }
 
     public static <Q> String update(Q data) throws Exception {

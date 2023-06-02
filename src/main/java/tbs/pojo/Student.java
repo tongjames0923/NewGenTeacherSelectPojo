@@ -11,20 +11,11 @@ public class Student {
     String cla;
     @SqlField(isPrimary = true)
     String phone;
-    @SqlField
-    String masterPhone;
 
     @SqlField
     private Integer grade;
 
 
-    public String getMasterPhone() {
-        return masterPhone;
-    }
-
-    public void setMasterPhone(String masterPhone) {
-        this.masterPhone = masterPhone;
-    }
 
     public String getStudentNo() {
         return studentNo;
