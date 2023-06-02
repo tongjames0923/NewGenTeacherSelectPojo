@@ -4,6 +4,10 @@ import lombok.ToString;
 import tbs.utils.AOP.authorize.interfaces.IPermissionVerification;
 import tbs.utils.AOP.controller.IAction;
 import tbs.utils.error.NetError;
+
+import java.util.LinkedList;
+import java.util.List;
+
 @ToString
 public class NetResult<T> {
     public static enum MethodType {
@@ -73,6 +77,16 @@ public class NetResult<T> {
     }
 
     private MethodType methodType = MethodType.Immediately;
+
+    private List<NetResultCallEnum> callbacks=new LinkedList<>();
+
+    public List<NetResultCallEnum> getCallbacks() {
+        return callbacks;
+    }
+
+    public void setCallback(List<NetResultCallEnum> callback) {
+        this.callbacks = callback;
+    }
 
     public MethodType getMethodType() {
         return methodType;

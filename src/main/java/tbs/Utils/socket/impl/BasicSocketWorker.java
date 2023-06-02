@@ -2,6 +2,7 @@ package tbs.utils.socket.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import tbs.utils.AOP.authorize.interfaces.IAccess;
 import tbs.utils.AOP.authorize.model.BaseRoleModel;
@@ -16,6 +17,7 @@ import java.util.Set;
 
 @Slf4j
 @Component
+@Scope("prototype")
 public abstract class BasicSocketWorker implements ISocketWorker {
 
     @Autowired

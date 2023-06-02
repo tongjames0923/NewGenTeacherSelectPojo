@@ -23,6 +23,7 @@ import tbs.utils.AOP.controller.ApiProxy;
 import tbs.utils.AOP.controller.IAction;
 import tbs.utils.Async.annotations.AsyncReturnFunction;
 import tbs.utils.Results.NetResult;
+import tbs.utils.Results.NetResultCallEnum;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -100,6 +101,10 @@ public class Access_AOP_Config {
                     return joinPoint.proceed(fparams);
                 }
             }, result);
+
+            if (!CollectionUtils.isEmpty(executionData.getCallbacks())) {
+                result.setCallback(executionData.getCallbacks());
+            }
         } catch (AuthorizationFailureException authorizationFailureException) {
             result.setCode(NetResult.LIMITED_ACCESS);
             result.setMessage(authorizationFailureException.getMessage());
@@ -109,7 +114,7 @@ public class Access_AOP_Config {
             log.error(throwable.getMessage(), throwable);
         } finally {
             executionData.setRequestEndTime(new Date());
-            result.setCost(executionData.getRequestEndTime().getTime()-executionData.getRequestBeginTime().getTime());
+            result.setCost(executionData.getRequestEndTime().getTime() - executionData.getRequestBeginTime().getTime());
         }
         return result;
     }

@@ -2,6 +2,7 @@ package tbs.utils.socket.impl;
 
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import tbs.utils.socket.ISocketClient;
 import tbs.utils.socket.ISocketManager;
@@ -14,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @Slf4j
+@Scope("prototype")
 public class DefaultSocketManager implements ISocketManager {
     ConcurrentHashMap<String, ISocketClient> socketPool = new ConcurrentHashMap<>();
     ConcurrentHashMap<String, List<MessageEvent>> eventsMap = new ConcurrentHashMap<>();

@@ -3,8 +3,12 @@ package tbs.utils.AOP.authorize.model;
 import lombok.ToString;
 import tbs.utils.AOP.authorize.interfaces.IPermissionVerification;
 import tbs.utils.Results.NetResult;
+import tbs.utils.Results.NetResultCallEnum;
 
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+
 @ToString
 public class SystemExecutionData {
     private String invokeToken;
@@ -13,6 +17,16 @@ public class SystemExecutionData {
     BaseRoleModel invokeRole;
     NetResult.MethodType methodType;
     IPermissionVerification.VerificationConclusion authType;
+
+    private List<NetResultCallEnum> callbacks=new LinkedList<>();
+
+    public List<NetResultCallEnum> getCallbacks() {
+        return callbacks;
+    }
+
+    public void setCallbacks(List<NetResultCallEnum> callbacks) {
+        this.callbacks = callbacks;
+    }
 
     public String getInvokeToken() {
         return invokeToken;
