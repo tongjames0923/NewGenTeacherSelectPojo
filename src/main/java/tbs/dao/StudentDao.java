@@ -17,9 +17,8 @@ import java.util.List;
 @Mapper
 public interface StudentDao {
 
-
-    @Insert("insert into student(studentNo, grade, cla, phone) VALUES (#{studentNo},#{grade},#{cla},#{phone})")
-    int saveStudent(Student item);
+    @InsertProvider(type = SqlUpdateImpl.class,method = SqlUpdateImpl.INSERT)
+    void saveStudent(Student item);
 
     @Select(StudentUserDetail.BASIC_DATA_SQL + "where bu.phone=#{phone}")
     @Cacheable(cacheManager = RedisConfig.ShortTermCache, key = "#phone", value = "studentInfo")

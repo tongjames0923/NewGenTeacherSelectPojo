@@ -15,7 +15,16 @@ public class Student {
     @SqlField
     private Integer grade;
 
+    @SqlField
+    private Double score;
 
+    public Double getScore() {
+        return score;
+    }
+
+    public void setScore(Double score) {
+        this.score = score;
+    }
 
     public String getStudentNo() {
         return studentNo;
