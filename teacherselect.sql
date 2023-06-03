@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 80030
 File Encoding         : 65001
 
-Date: 2023-06-02 20:18:18
+Date: 2023-06-03 12:55:08
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -144,8 +144,8 @@ CREATE TABLE `scoreconfigtemplate` (
 -- ----------------------------
 -- Records of scoreconfigtemplate
 -- ----------------------------
-INSERT INTO `scoreconfigtemplate` VALUES ('1', 'test', '2023-06-02 19:08:54', '1111', '10');
-INSERT INTO `scoreconfigtemplate` VALUES ('标准模板-10-1685708255713', '标准模板', '2023-06-02 20:17:35', '15606810923', '10');
+INSERT INTO `scoreconfigtemplate` VALUES ('DD11F9F1103DA8E7E82D56B31DBEA7E5C4C900A408EC187F9C', '数工学院基础模板', '2023-06-03 12:26:37', '15606810923', '2');
+INSERT INTO `scoreconfigtemplate` VALUES ('ECB3860155CA0DA94BF1B764A0A89D69AFEFD8C3EABAA153EB', '数工学院无敌模板', '2023-06-03 12:29:57', '15606810923', '2');
 
 -- ----------------------------
 -- Table structure for `scoreconfigtemplateitem`
@@ -158,15 +158,19 @@ CREATE TABLE `scoreconfigtemplateitem` (
   `percent` int NOT NULL COMMENT '闁谎勫劤閸ㄥ骸袙?',
   `templateId` varchar(50) NOT NULL COMMENT '濡剝婢樻稉濠氭暛',
   PRIMARY KEY (`id`),
-  KEY `FIND_INDEX` (`templateId`,`sortCode`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `FIND_INDEX` (`templateId`,`sortCode`) USING BTREE,
+  KEY `ByTEMPLATE` (`templateId`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ----------------------------
 -- Records of scoreconfigtemplateitem
 -- ----------------------------
-INSERT INTO `scoreconfigtemplateitem` VALUES ('1', 'good', '0', '20', '标准模板-10-1685708255713');
-INSERT INTO `scoreconfigtemplateitem` VALUES ('2', 'ok', '1', '30', '标准模板-10-1685708255713');
-INSERT INTO `scoreconfigtemplateitem` VALUES ('3', 'bad', '2', '50', '标准模板-10-1685708255713');
+INSERT INTO `scoreconfigtemplateitem` VALUES ('4', '优秀生', '0', '5', 'DD11F9F1103DA8E7E82D56B31DBEA7E5C4C900A408EC187F9C');
+INSERT INTO `scoreconfigtemplateitem` VALUES ('5', '普通生', '1', '65', 'DD11F9F1103DA8E7E82D56B31DBEA7E5C4C900A408EC187F9C');
+INSERT INTO `scoreconfigtemplateitem` VALUES ('6', '差生', '2', '30', 'DD11F9F1103DA8E7E82D56B31DBEA7E5C4C900A408EC187F9C');
+INSERT INTO `scoreconfigtemplateitem` VALUES ('7', '优秀生', '0', '1', 'ECB3860155CA0DA94BF1B764A0A89D69AFEFD8C3EABAA153EB');
+INSERT INTO `scoreconfigtemplateitem` VALUES ('8', '普通生', '1', '19', 'ECB3860155CA0DA94BF1B764A0A89D69AFEFD8C3EABAA153EB');
+INSERT INTO `scoreconfigtemplateitem` VALUES ('9', '差生', '2', '80', 'ECB3860155CA0DA94BF1B764A0A89D69AFEFD8C3EABAA153EB');
 
 -- ----------------------------
 -- Table structure for `student`

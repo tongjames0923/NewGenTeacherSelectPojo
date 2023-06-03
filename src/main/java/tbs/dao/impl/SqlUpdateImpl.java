@@ -3,8 +3,13 @@ package tbs.dao.impl;
 import lombok.extern.slf4j.Slf4j;
 import tbs.utils.sql.SQL_Tool;
 
+import java.util.List;
+
 @Slf4j
 public class SqlUpdateImpl {
+
+    public static final String INSERT="insert",UPDATE="update";
+
     public  String insert(Object obj) {
         try {
             return SQL_Tool.insert(obj);

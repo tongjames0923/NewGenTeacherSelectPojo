@@ -7,7 +7,15 @@ import java.lang.annotation.*;
 @Documented
 public @interface SqlField {
 
-    boolean isPrimary()default false;
+
+    public static final int SORT_NOT = 0, SORT_DESC = -1, SORT_ASC = 1;
+
+    boolean isPrimary() default false;
+
     String field() default "";
-    int index()default 0;
+
+    int index() default 0;
+
+    int sortable() default SORT_NOT;
+
 }

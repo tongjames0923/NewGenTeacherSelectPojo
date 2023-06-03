@@ -16,12 +16,23 @@ import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static tbs.utils.sql.annotations.SqlField.*;
+
 public class SQL_Tool {
 
 
     private static class SqlFieldItem {
         private String field, value;
         boolean isPrimary = false;
+        int sortable= SORT_NOT;
+
+        public int getSortable() {
+            return sortable;
+        }
+
+        public void setSortable(int sortable) {
+            this.sortable = sortable;
+        }
 
         public boolean isPrimary() {
             return isPrimary;
@@ -74,6 +85,7 @@ public class SQL_Tool {
                 fieldItem.setPrimary(true);
             fieldItem.setIndex(f.index());
             fieldItem.setField(StringUtils.isEmpty(f.field()) ? field.getName() : f.field());
+            fieldItem.setSortable(f.sortable());
             Object v = field.get(qo);
             if (v != null) {
                 if(v.getClass().equals(Date.class))
@@ -99,12 +111,36 @@ public class SQL_Tool {
         return builder.toString();
     }
 
-    public static <Q> String query(Q qo, Page page, Sortable sortable) throws Exception {
+    static String getSORTSTR(int c)
+    {
+        if(c==SORT_DESC)
+            return "DESC";
+        else if(c==SORT_ASC)
+            return "ASC";
+        else
+            return "";
+    }
+    static String setSortable(SqlFieldItem item,String sidx)
+    {
+        if(item.getSortable()==SORT_NOT)
+            return sidx;
+        if(StringUtils.isEmpty(sidx))
+        {
+            sidx=String.format(" ORDER BY `%s` '%s' ",item.field,getSORTSTR(item.getSortable()));
+        }
+        else
+        {
+            sidx+=String.format(" , `%s` '%s' ",item.field,getSORTSTR(item.getSortable()));
+        }
+        return sidx;
+    }
+    public static <Q> String query(Q qo, Page page) throws Exception {
         Queryable queryable = qo.getClass().getDeclaredAnnotation(Queryable.class);
         if (queryable == null) {
             throw new Exception("not find queryable in class");
         }
         StringBuilder select = new StringBuilder(queryable.value() + " ");
+        String sidx="";
         if (qo != null) {
             String find = "where ";
             List<SqlFieldItem> items = qoToList(qo);
@@ -112,6 +148,7 @@ public class SQL_Tool {
                 SqlFieldItem item = items.get(0);
                 String n = item.getField();
                 String v = item.getValue();
+                sidx=setSortable(item,sidx);
                 find += n + "='" + v + "' ";
                 for (int i = 1; i < items.size(); i++) {
                     item = items.get(i);
@@ -123,13 +160,7 @@ public class SQL_Tool {
                 select.append(find);
             }
         }
-        if (sortable != null) {
-            String sidx = " order by " + sortable.getField() + " ";
-            if (sortable.getDirection() == Sortable.DESC) {
-                sidx += "DESC ";
-            }
-            select.append(sidx);
-        }
+        select.append(sidx);
         if (page != null) {
             select.append(" " + page.makeSql());
         }

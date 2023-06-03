@@ -30,8 +30,6 @@ public interface StudentDao {
     void updateStudent(Student student);
 
 
-    @SelectProvider(type = SQL_QueryImpl.class, method = "query")
-    List<StudentUserDetail> studentDetailQuery(StudentQO qo, Page page, Sortable sortable);
 
     @Select(StudentUserDetail.BASIC_DATA_SQL + " where bu.departmentId=#{department} limit #{beg},#{end}")
     List<StudentUserDetail> findStudentByDepartment(int department, int beg, int end);
