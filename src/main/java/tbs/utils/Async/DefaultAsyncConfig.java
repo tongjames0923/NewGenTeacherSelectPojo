@@ -83,7 +83,7 @@ public class DefaultAsyncConfig {
     @ConditionalOnMissingBean(AsyncMethod.class)
     AsyncMethod asyncMethod() {
         return new AsyncMethod() {
-            ConcurrentMap<String, Object> dataSource = new ConcurrentHashMap<>();
+            ConcurrentMap<String, NetResult.AsyncDelayResult> dataSource = new ConcurrentHashMap<>();
 
             @Override
             public String resultKey() {
@@ -130,7 +130,7 @@ public class DefaultAsyncConfig {
             @Override
             public boolean post(String key, Object o) {
                 try {
-                    dataSource.put(key, o);
+                    dataSource.put(key, (NetResult.AsyncDelayResult) o);
                     return true;
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
@@ -141,8 +141,9 @@ public class DefaultAsyncConfig {
             @Override
             public Object get(String key) throws Exception {
                 if (dataSource.containsKey(key)) {
-                    Object data = dataSource.get(key);
-                    dataSource.remove(key);
+                    NetResult.AsyncDelayResult data = dataSource.get(key);
+                    if(!NetResult.AsyncDelayResult.RUNNING.equals(data.getStatus()))
+                        dataSource.remove(key);
                     return data;
                 } else {
                     throw new NetError("不存在取值码:" + key, 404);

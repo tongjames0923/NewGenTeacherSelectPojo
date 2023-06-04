@@ -28,7 +28,8 @@ public interface StudentDao {
     @CacheEvict(key = "#student.phone", value = "studentInfo")
     void updateStudent(Student student);
 
-
+    @Select("SELECT count(1) FROM student st LEFT JOIN basicuser bu ON bu.phone=st.phone LEFT JOIN masterrelation mr ON mr.studentPhone=st.phone WHERE mr.id IS NULL AND bu.departmentId=#{department} order by score desc;")
+    int listDepartmentNoMasterStudentOrderBySocre(int department);
 
     @Select(StudentUserDetail.BASIC_DATA_SQL + " where bu.departmentId=#{department} limit #{beg},#{end}")
     List<StudentUserDetail> findStudentByDepartment(int department, int beg, int end);

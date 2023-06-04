@@ -10,6 +10,8 @@ import tbs.pojo.Teacher;
 import tbs.pojo.dto.TeacherDetail;
 import tbs.utils.redis.RedisConfig;
 
+import java.util.List;
+
 public interface TeacherDao {
     @InsertProvider(type = SqlUpdateImpl.class, method = "insert")
     void saveTeacher(Teacher teacher);
@@ -22,4 +24,7 @@ public interface TeacherDao {
     @CacheEvict(key = "#teacher.phone", value = "teacherInfo")
     void updateTeacher(Teacher teacher);
 
+
+    @Select("select * from teacher t join basicuser b on t.phone = b.phone where departmentId=#{department}")
+    List<Teacher> listTeacherByDepartment(Integer department);
 }

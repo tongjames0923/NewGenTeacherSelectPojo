@@ -11,7 +11,7 @@
  Target Server Version : 80030 (8.0.30)
  File Encoding         : 65001
 
- Date: 03/06/2023 15:31:00
+ Date: 04/06/2023 13:36:11
 */
 
 SET NAMES utf8mb4;
@@ -863,10 +863,11 @@ COMMIT;
 DROP TABLE IF EXISTS `masterrelation`;
 CREATE TABLE `masterrelation` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `studentPhone` varchar(50) NOT NULL COMMENT '学生手机号',
-  `masterPhone` varchar(50) DEFAULT NULL COMMENT '老师手机号',
+  `studentPhone` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '学生手机号',
+  `masterPhone` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '老师手机号',
+  `scoreConfigItemId` int NOT NULL COMMENT '成绩配置模板项的id',
   PRIMARY KEY (`id`),
-  KEY `FIND_INDEX` (`id`,`masterPhone`,`studentPhone`)
+  KEY `FIND_INDEX` (`id`,`scoreConfigItemId`,`masterPhone`,`studentPhone`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ----------------------------
