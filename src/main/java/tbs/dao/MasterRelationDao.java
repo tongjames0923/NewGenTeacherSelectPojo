@@ -15,6 +15,11 @@ public interface MasterRelationDao extends BaseMapper<MasterRelation> {
     MasterRelation findEmptyByMasterAndConfig(String master, int config);
 
 
+
+    @Select("select * from masterrelation where studentPhone=#{student} limit 1;")
+    MasterRelation findByStudent(String student);
+
+
     @Select("select count(1) from masterrelation where masterPhone=#{master} and scoreConfigItemId=#{config} and studentPhone is NULL")
     Integer countEmpty(String master,int config);
 
