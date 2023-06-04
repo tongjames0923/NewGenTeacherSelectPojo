@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import tbs.pojo.MasterRelation;
+import tbs.pojo.dto.MasterRelationVO;
 
 import java.util.List;
 
@@ -20,6 +21,12 @@ public interface MasterRelationDao extends BaseMapper<MasterRelation> {
     @Select("select * from masterrelation where masterPhone=#{master} and scoreConfigItemId=#{config}")
     List<MasterRelation> findByMasterAndConfig(String master,int config);
 
-    @Select("select masterPhone from masterrelation where studentPhone is not null group by masterPhone")
-    List<String> listMasterByHasStudent();
+    @Select("SELECT mr.masterPhone AS `master`,( " +
+            "SELECT COUNT(1) FROM masterrelation mr1 WHERE mr1.masterPhone=mr.masterPhone AND mr1.studentPhone IS NULL and mr1.scoreConfigItemId=#{configItem}) AS `left`,( " +
+            "SELECT COUNT(1) FROM masterrelation mr1 WHERE mr1.masterPhone=mr.masterPhone AND mr1.studentPhone IS NOT NULL and mr1.scoreConfigItemId=#{configItem}) AS `had` FROM masterrelation mr GROUP BY mr.masterPhone")
+    List<MasterRelationVO> listMasterByHasStudent(int configItem);
+
+
+    @Select("select scoreConfigItemId from masterrelation group by scoreConfigItemId")
+    List<Integer> allTemplateItemIds();
 }
