@@ -11,7 +11,7 @@
  Target Server Version : 80030 (8.0.30)
  File Encoding         : 65001
 
- Date: 04/06/2023 18:16:25
+ Date: 04/06/2023 18:32:11
 */
 
 SET NAMES utf8mb4;
@@ -886,7 +886,7 @@ INSERT INTO `masterrelation` (`id`, `studentPhone`, `masterPhone`, `scoreConfigI
 INSERT INTO `masterrelation` (`id`, `studentPhone`, `masterPhone`, `scoreConfigItemId`) VALUES (3002758, NULL, '10010', 4);
 INSERT INTO `masterrelation` (`id`, `studentPhone`, `masterPhone`, `scoreConfigItemId`) VALUES (3002759, NULL, '10011', 4);
 INSERT INTO `masterrelation` (`id`, `studentPhone`, `masterPhone`, `scoreConfigItemId`) VALUES (3002760, NULL, '10012', 4);
-INSERT INTO `masterrelation` (`id`, `studentPhone`, `masterPhone`, `scoreConfigItemId`) VALUES (3002761, NULL, '10013', 4);
+INSERT INTO `masterrelation` (`id`, `studentPhone`, `masterPhone`, `scoreConfigItemId`) VALUES (3002761, '2022140246', '10013', 4);
 INSERT INTO `masterrelation` (`id`, `studentPhone`, `masterPhone`, `scoreConfigItemId`) VALUES (3002762, NULL, '10014', 4);
 INSERT INTO `masterrelation` (`id`, `studentPhone`, `masterPhone`, `scoreConfigItemId`) VALUES (3002763, NULL, '10015', 4);
 INSERT INTO `masterrelation` (`id`, `studentPhone`, `masterPhone`, `scoreConfigItemId`) VALUES (3002764, NULL, '10016', 4);
