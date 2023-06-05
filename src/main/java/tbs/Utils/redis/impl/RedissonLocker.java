@@ -8,13 +8,13 @@ import org.springframework.stereotype.Component;
 import tbs.utils.Async.interfaces.ILocker;
 import tbs.utils.Async.interfaces.IThreadLocker;
 import tbs.utils.Async.interfaces.IThreadSign;
+import tbs.utils.redis.RedisConfig;
 
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@Component
-@Primary
+@Component(RedisConfig.REDISSION_LOCK)
 public class RedissonLocker implements ILocker {
 
     @Resource

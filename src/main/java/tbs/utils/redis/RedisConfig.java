@@ -12,6 +12,8 @@ import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
+import tbs.utils.Async.interfaces.ILocker;
+import tbs.utils.redis.impl.RedissonLocker;
 
 import java.time.Duration;
 
@@ -38,6 +40,8 @@ public class RedisConfig {
         RedissonClient redissonClient = Redisson.create(config);
         return redissonClient;
     }
+
+    public static final String REDISSION_LOCK="REDIS_LOCKER";
     /**
      * 缓存管理器
      */

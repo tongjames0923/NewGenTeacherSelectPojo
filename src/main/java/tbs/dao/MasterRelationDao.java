@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import tbs.pojo.MasterRelation;
 import tbs.pojo.dto.MasterRelationVO;
+import tbs.utils.Async.annotations.LockIt;
 
 import java.util.List;
 
@@ -33,12 +34,16 @@ public interface MasterRelationDao extends BaseMapper<MasterRelation> {
     List<MasterRelationVO> listMasterByHasStudent(int configItem);
 
 
-    @Update("UPDATE masterrelation m1\n" +
-            "JOIN (SELECT id FROM masterrelation WHERE studentPhone is NULL and masterPhone=#{master} and scoreConfigItemId=#{config} LIMIT 1) m2\n" +
-            "ON m1.id = m2.id\n" +
+    @Update("UPDATE masterrelation m1 " +
+            "JOIN (SELECT id FROM masterrelation WHERE studentPhone is NULL and masterPhone=#{master} and scoreConfigItemId=#{config} LIMIT 1) m2 " +
+            "ON m1.id = m2.id " +
             "SET m1.studentPhone = #{student};")
+    @LockIt
     int selectMaster(String student,String master,int config);
 
+    @Update("UPDATE masterrelation mr set studentPhone=null where mr.masterPhone=#{master} and mr.studentPhone=#{student}")
+    @LockIt
+    int unselectMaster(String student,String master);
 
 
     @Select("select scoreConfigItemId from masterrelation group by scoreConfigItemId")

@@ -1,6 +1,7 @@
 package tbs.utils.Async;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +17,7 @@ import tbs.utils.EncryptionTool;
 import tbs.utils.Results.AsyncTaskResult;
 import tbs.utils.Results.NetResult;
 import tbs.utils.error.NetError;
+import tbs.utils.redis.RedisConfig;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -52,13 +54,13 @@ public class DefaultAsyncConfig {
 
     @Bean
     @ConditionalOnMissingBean(ILockProxy.class)
-    ILockProxy iLockProxy(ILocker locker) {
+    ILockProxy iLockProxy(@Qualifier(RedisConfig.REDISSION_LOCK) ILocker default_locker) {
         return new ILockProxy() {
 
             @Override
             public Object run(Function<ILocker, Object> f, String lockName) {
                 IThreadSign threadSign = new IThreadSign() {
-                    String key = "LOCK" + lockName;
+                    String key = "LOCK:" + lockName;
 
                     @Override
                     public String key() {
@@ -66,6 +68,7 @@ public class DefaultAsyncConfig {
                     }
                 };
                 Object data = null;
+                log.info("BEGIN LOCK "+threadSign.key());
                 locker.lock(threadSign);
                 try {
                     data = f.apply(locker);
@@ -73,8 +76,19 @@ public class DefaultAsyncConfig {
                     log.error(e.getMessage(), e);
                 } finally {
                     locker.unlock(threadSign);
+                    log.info("END LOCK "+threadSign.key());
                 }
                 return data;
+            }
+            ILocker locker=default_locker;
+            @Override
+            public ILocker getLocker() {
+                return locker;
+            }
+
+            @Override
+            public void setLocker(ILocker lk) {
+                this.locker=lk;
             }
         };
     }
