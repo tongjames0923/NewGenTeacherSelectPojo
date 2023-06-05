@@ -3,6 +3,7 @@ package tbs.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import tbs.pojo.MasterRelation;
 import tbs.pojo.dto.MasterRelationVO;
 
@@ -30,6 +31,14 @@ public interface MasterRelationDao extends BaseMapper<MasterRelation> {
             "SELECT COUNT(1) FROM masterrelation mr1 WHERE mr1.masterPhone=mr.masterPhone AND mr1.studentPhone IS NULL and mr1.scoreConfigItemId=#{configItem}) AS `left`,( " +
             "SELECT COUNT(1) FROM masterrelation mr1 WHERE mr1.masterPhone=mr.masterPhone AND mr1.studentPhone IS NOT NULL and mr1.scoreConfigItemId=#{configItem}) AS `had` FROM masterrelation mr GROUP BY mr.masterPhone")
     List<MasterRelationVO> listMasterByHasStudent(int configItem);
+
+
+    @Update("UPDATE masterrelation m1\n" +
+            "JOIN (SELECT id FROM masterrelation WHERE studentPhone is NULL and masterPhone=#{master} and scoreConfigItemId=#{config} LIMIT 1) m2\n" +
+            "ON m1.id = m2.id\n" +
+            "SET m1.studentPhone = #{student};")
+    int selectMaster(String student,String master,int config);
+
 
 
     @Select("select scoreConfigItemId from masterrelation group by scoreConfigItemId")
