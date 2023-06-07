@@ -29,7 +29,7 @@ public class Page {
 
     public String makeSql() {
         int from = (page - 1) * count;
-        int to = from + count;
+        int to = count;
         return " LIMIT " + from + "," + to + " ";
     }
 
