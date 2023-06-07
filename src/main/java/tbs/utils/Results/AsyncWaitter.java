@@ -89,7 +89,15 @@ public class AsyncWaitter {
         }
 
         public void waitForDone() throws Exception {
-            latch.await(1, TimeUnit.MINUTES);
+           boolean ek= latch.await(1, TimeUnit.MINUTES);
+           if(ek)
+           {
+               log.info("所有线程运行完毕");
+           }
+           else
+           {
+               log.info("超时结束完毕");
+           }
         }
 
         @Override

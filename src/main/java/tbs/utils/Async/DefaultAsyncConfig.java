@@ -203,9 +203,7 @@ public class DefaultAsyncConfig {
 
             @Override
             public void unlock(IThreadSign sign) {
-                if (keys.containsKey(sign.key())) {
-                    keys.remove(sign.key());
-                }
+                keys.remove(sign.key());
             }
 
             @Override
