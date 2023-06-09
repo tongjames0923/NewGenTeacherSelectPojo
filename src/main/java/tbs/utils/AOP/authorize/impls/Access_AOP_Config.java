@@ -24,6 +24,7 @@ import tbs.utils.AOP.controller.IAction;
 import tbs.utils.Async.annotations.AsyncReturnFunction;
 import tbs.utils.Results.NetResult;
 import tbs.utils.Results.NetResultCallEnum;
+import tbs.utils.error.NetError;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -105,7 +106,13 @@ public class Access_AOP_Config {
             if (!CollectionUtils.isEmpty(executionData.getCallbacks())) {
                 result.setCallback(executionData.getCallbacks());
             }
-        } catch (AuthorizationFailureException authorizationFailureException) {
+        }
+        catch (NetError error)
+        {
+            result.setCode(error.getCode());
+            result.setMessage(error.getMessage());
+        }
+        catch (AuthorizationFailureException authorizationFailureException) {
             result.setCode(NetResult.LIMITED_ACCESS);
             result.setMessage(authorizationFailureException.getMessage());
         } catch (Throwable throwable) {

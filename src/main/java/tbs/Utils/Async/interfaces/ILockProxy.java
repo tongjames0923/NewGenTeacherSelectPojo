@@ -1,9 +1,11 @@
 package tbs.utils.Async.interfaces;
 
-import java.util.function.Function;
-
 public interface ILockProxy {
-    public Object run(Function<ILocker,Object> f,String lockName);
+    interface FunctionWithThrows<P,R>
+    {
+        R apply(P param) throws Throwable;
+    }
+    public Object run(FunctionWithThrows<ILocker,Object> function, String lockName) throws Throwable;
 
     public ILocker getLocker();
     public void setLocker(ILocker locker);

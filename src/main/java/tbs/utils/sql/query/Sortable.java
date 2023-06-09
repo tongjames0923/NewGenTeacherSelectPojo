@@ -14,6 +14,10 @@ public class Sortable {
         setDirection(direction);
         this.field = field;
     }
+    public Sortable(String dir, String field) {
+        this.setDir(dir);
+        this.field = field;
+    }
 
     public void setDir(String dir) {
         this.dir = dir;

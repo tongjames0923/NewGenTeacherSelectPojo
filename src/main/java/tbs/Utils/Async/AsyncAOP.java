@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Configuration;
 import tbs.utils.Async.annotations.LockIt;
 import tbs.utils.Async.interfaces.ILockProxy;
 import tbs.utils.Async.interfaces.ILocker;
-import tbs.utils.Results.NetResult;
 
 import javax.annotation.Resource;
 import java.util.function.Function;
@@ -31,24 +30,20 @@ public class AsyncAOP {
     }
 
     @Around("needlock()")
-    Object handleLock(ProceedingJoinPoint joinPoint) {
+    Object handleLock(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        LockIt lockIt= signature.getMethod().getAnnotation(LockIt.class);
-        ILocker locker= SpringUtil.getBean(lockIt.lockType());
+        LockIt lockIt = signature.getMethod().getAnnotation(LockIt.class);
+        ILocker locker = SpringUtil.getBean(lockIt.lockType());
 
-        String lockname= lockIt.value();
-        if(StringUtils.isEmpty(lockname))
-        {
-            lockname= signature.getDeclaringTypeName()+"."+signature.getMethod().getName();
+        String lockname = lockIt.value();
+        if (StringUtils.isEmpty(lockname)) {
+            lockname = signature.getDeclaringTypeName() + "." + signature.getMethod().getName();
         }
-        return lockProxy.run(new Function<ILocker, Object>() {
+        lockProxy.setLocker(locker);
+        return lockProxy.run(new ILockProxy.FunctionWithThrows<ILocker, Object>() {
             @Override
-            public Object apply(ILocker iLocker) {
-                try {
-                    return joinPoint.proceed();
-                } catch (Throwable e) {
-                    throw new RuntimeException(e);
-                }
+            public Object apply(ILocker param) throws Throwable {
+                return joinPoint.proceed();
             }
         }, lockname);
     }

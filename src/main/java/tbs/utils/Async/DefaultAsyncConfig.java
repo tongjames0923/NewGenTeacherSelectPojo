@@ -58,7 +58,7 @@ public class DefaultAsyncConfig {
         return new ILockProxy() {
 
             @Override
-            public Object run(Function<ILocker, Object> f, String lockName) {
+            public Object run(FunctionWithThrows<ILocker,Object> f, String lockName) throws Throwable {
                 IThreadSign threadSign = new IThreadSign() {
                     String key = "LOCK:" + lockName;
 
@@ -69,14 +69,17 @@ public class DefaultAsyncConfig {
                 };
                 Object data = null;
                 log.info("BEGIN LOCK "+threadSign.key());
+                Throwable ex=null;
                 locker.lock(threadSign);
                 try {
                     data = f.apply(locker);
-                } catch (Exception e) {
-                    log.error(e.getMessage(), e);
+                } catch (Throwable e) {
+                    ex=e;
                 } finally {
                     locker.unlock(threadSign);
                     log.info("END LOCK "+threadSign.key());
+                    if(ex!=null)
+                        throw ex;
                 }
                 return data;
             }
