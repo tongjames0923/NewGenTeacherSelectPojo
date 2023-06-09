@@ -4,7 +4,23 @@ public class Sortable {
     private int direction = ASC;
     private String field;
 
-    public static final int DESC = -1, ASC = 1;
+    private String dir;
+
+    public String getDir() {
+        return dir;
+    }
+
+    public Sortable(int direction, String field) {
+        setDirection(direction);
+        this.field = field;
+    }
+
+    public void setDir(String dir) {
+        this.dir = dir;
+    }
+
+    public static final int DESC = 1, ASC = 0;
+    private static final String[] sidxs={"asc","desc"};
 
     public int getDirection() {
         return direction;
@@ -12,6 +28,7 @@ public class Sortable {
 
     public void setDirection(int direction) {
         this.direction = direction;
+        this.dir=sidxs[direction];
     }
 
     public String getField() {

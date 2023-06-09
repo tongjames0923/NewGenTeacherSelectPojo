@@ -11,6 +11,16 @@ public class Page {
      */
     int count;
 
+    int offset;
+
+    public int getOffset() {
+        return offset;
+    }
+
+    public void setOffset(int offset) {
+        this.offset = offset;
+    }
+
     public int getPage() {
         return page;
     }
@@ -27,10 +37,14 @@ public class Page {
         this.count = count;
     }
 
+    public Page(int page, int count) {
+        this.page = page<=0?0:page;
+        this.offset=page<=0?0:(page - 1) * count;
+        this.count = count;
+    }
+
     public String makeSql() {
-        int from = (page - 1) * count;
-        int to = count;
-        return " LIMIT " + from + "," + to + " ";
+        return " LIMIT " + offset + "," + count + " ";
     }
 
 }
