@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import tbs.utils.Async.annotations.LockIt;
 import tbs.utils.Async.interfaces.ILockProxy;
 import tbs.utils.Async.interfaces.ILocker;
+import tbs.utils.redis.RedisConfig;
 
 import javax.annotation.Resource;
 import java.util.function.Function;
@@ -33,8 +34,12 @@ public class AsyncAOP {
     Object handleLock(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         LockIt lockIt = signature.getMethod().getAnnotation(LockIt.class);
-        ILocker locker = SpringUtil.getBean(lockIt.lockType());
-
+        String locktype=lockIt.lockType();
+        if(StringUtils.isEmpty(locktype))
+        {
+            locktype= RedisConfig.REDISSION_LOCK;
+        }
+        ILocker locker = SpringUtil.getBean(locktype);
         String lockname = lockIt.value();
         if (StringUtils.isEmpty(lockname)) {
             lockname = signature.getDeclaringTypeName() + "." + signature.getMethod().getName();

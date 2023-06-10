@@ -9,10 +9,12 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
 import tbs.utils.AOP.authorize.annotations.AccessRequire;
 import tbs.utils.AOP.authorize.error.AuthorizationFailureException;
 import tbs.utils.AOP.authorize.interfaces.IAccess;
@@ -25,6 +27,8 @@ import tbs.utils.Async.annotations.AsyncReturnFunction;
 import tbs.utils.Results.NetResult;
 import tbs.utils.Results.NetResultCallEnum;
 import tbs.utils.error.NetError;
+import tbs.utils.redis.IRedisService;
+import tbs.utils.redis.RedisConfig;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -88,8 +92,13 @@ public class Access_AOP_Config {
                 NetResult.MethodType.AsynchronousDelay : NetResult.MethodType.Immediately;
         result.setMethodType(type);
         executionData.setMethodType(type);
+        RequestMapping requestMapping = signature.getMethod().getAnnotation(RequestMapping.class);
+        String req = "";
+        if (requestMapping != null) {
+            req = request.getRequestURI().split("\\?")[0];
+        }
         try {
-            BaseRoleModel roleModel = accessCheck(signature, executionData);
+            BaseRoleModel roleModel = accessCheck(req, signature, executionData);
             executionData.setInvokeRole(roleModel);
             result.setAuthType(executionData.getAuthType());
             result.setInvokeToken(executionData.getInvokeToken());
@@ -106,13 +115,10 @@ public class Access_AOP_Config {
             if (!CollectionUtils.isEmpty(executionData.getCallbacks())) {
                 result.setCallback(executionData.getCallbacks());
             }
-        }
-        catch (NetError error)
-        {
+        } catch (NetError error) {
             result.setCode(error.getCode());
             result.setMessage(error.getMessage());
-        }
-        catch (AuthorizationFailureException authorizationFailureException) {
+        } catch (AuthorizationFailureException authorizationFailureException) {
             result.setCode(NetResult.LIMITED_ACCESS);
             result.setMessage(authorizationFailureException.getMessage());
         } catch (Throwable throwable) {
@@ -168,31 +174,35 @@ public class Access_AOP_Config {
         }
     }
 
-    private BaseRoleModel accessCheck(MethodSignature signature, SystemExecutionData data) throws AuthorizationFailureException {
+    @Cacheable(value = "ROLE_ACCESS", key = "#requestMap", cacheManager = RedisConfig.ShortTermCache)
+    public Map<Integer, BaseRoleModel> getRoleMap(String requestMap, Method method, AccessRequire require) {
+        Map<Integer, BaseRoleModel> roleMap = new HashMap<>();
+        consumeElement(access.grandedManual(require.manual()), (e) -> {
+            roleMap.put(e.getRoleCode(), e);
+        });
+        consumeElement(access.granded(method), (e) -> {
+            roleMap.put(e.getRoleCode(), e);
+        });
+        return roleMap;
+    }
+
+
+    private BaseRoleModel accessCheck(String requestMap, MethodSignature signature, SystemExecutionData data) throws AuthorizationFailureException {
         log.info("invoke " + signature.getName());
         Method method = signature.getMethod();
         AccessRequire require = method.getAnnotation(AccessRequire.class);
         if (require != null) {
             String tk = takeToken(require.requireField());
             if (StringUtils.isEmpty(tk)) {
-                throw new AuthorizationFailureException(String.format("空的密钥信息"));
+                throw new AuthorizationFailureException("空的密钥信息");
             }
-            Map<Integer, BaseRoleModel> roleMap = new HashMap<>();
-            consumeElement(access.grandedManual(require.manual()), (e) -> {
-                if (!roleMap.containsKey(e.getRoleCode())) {
-                    roleMap.put(e.getRoleCode(), e);
-                }
-            });
-            consumeElement(access.granded(method), (e) -> {
-                if (!roleMap.containsKey(e.getRoleCode())) {
-                    roleMap.put(e.getRoleCode(), e);
-                }
-            });
-            log.info("require role:" + JSON.toJSONString(roleMap));
             BaseRoleModel userrole = access.readRole(tk);
             if (userrole == null) {
-                throw new AuthorizationFailureException(String.format("无效密钥信息"));
+                throw new AuthorizationFailureException(String.format("无效密钥信息 %s",tk));
             }
+            log.info("user role:id {} ,code {} ,role name {}", userrole.getUserId(), userrole.getRoleCode(), userrole.getRoleName());
+            Map<Integer, BaseRoleModel> roleMap = getRoleMap(requestMap, method, require);
+            log.info("access roles {}", JSON.toJSONString(roleMap));
             IPermissionVerification.VerificationConclusion conclusion = permissionVerification.accessCheck(userrole, roleMap);
             data.setAuthType(conclusion);
             data.setInvokeToken(tk);
