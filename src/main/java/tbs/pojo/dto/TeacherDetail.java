@@ -1,6 +1,8 @@
 package tbs.pojo.dto;
 
-import com.alibaba.fastjson.JSON;
+import lombok.ToString;
+
+@ToString
 
 public class TeacherDetail extends BasicUserDetail {
 
@@ -35,8 +37,5 @@ public class TeacherDetail extends BasicUserDetail {
         this.pro_title = pro_title;
     }
 
-    @Override
-    public String toString() {
-        return JSON.toJSONString(this);
-    }
+
 }

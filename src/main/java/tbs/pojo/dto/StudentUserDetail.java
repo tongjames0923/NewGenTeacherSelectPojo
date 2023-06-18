@@ -1,8 +1,9 @@
 package tbs.pojo.dto;
 
-import com.alibaba.fastjson.JSON;
 
+import lombok.ToString;
 
+@ToString
 public class StudentUserDetail extends BasicUserDetail {
     public static final String BASIC_DATA_SQL = "SELECT bu.`name` AS `name`,bu.phone AS `phone`,bu.departmentId" +
             " AS `departmentId`,st.studentNo AS `studentNo`,st.cla AS `clas`,st.grade AS `grade`,st.score as `score`,r.roleid AS `role`," +
@@ -44,8 +45,4 @@ public class StudentUserDetail extends BasicUserDetail {
         this.grade = grade;
     }
 
-    @Override
-    public String toString() {
-        return JSON.toJSONString(this);
-    }
 }

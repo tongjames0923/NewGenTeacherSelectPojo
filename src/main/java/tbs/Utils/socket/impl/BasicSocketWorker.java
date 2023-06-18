@@ -12,20 +12,21 @@ import tbs.utils.socket.ISocketManager;
 import tbs.utils.socket.ISocketWorker;
 import tbs.utils.socket.model.SocketReceiveMessage;
 
+import javax.annotation.Resource;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 @Slf4j
-@Component
 @Scope("prototype")
+@Component
 public abstract class BasicSocketWorker implements ISocketWorker {
 
-    @Autowired
+    @Resource
     private IAccess access = null;
 
-    public String SERVICE_NAME ="";
-    @Autowired
+    public String SERVICE_NAME = "";
+    @Resource
     private ISocketManager socketManager = null;
 
     private boolean isInit = false;
@@ -37,6 +38,9 @@ public abstract class BasicSocketWorker implements ISocketWorker {
 
     public BasicSocketWorker(String name) {
         SERVICE_NAME = name;
+    }
+    public BasicSocketWorker() {
+
     }
 
     private void init() {
@@ -66,14 +70,14 @@ public abstract class BasicSocketWorker implements ISocketWorker {
         customAccept(client, baseRoleModel);
         socketManager.putSocket(client);
         keys.add(client.key());
-        log.debug("connected for {}.key :{}",serviceName(),client.key());
+        log.debug("connected for {}.key :{}", serviceName(), client.key());
     }
 
     @Override
     public void onClose(ISocketClient client) {
         keys.remove(client.key());
         socketManager.remove(client.key());
-        log.debug("disconnected for {}.key :{}",serviceName(),client.key());
+        log.debug("disconnected for {}.key :{}", serviceName(), client.key());
     }
 
     @Override
