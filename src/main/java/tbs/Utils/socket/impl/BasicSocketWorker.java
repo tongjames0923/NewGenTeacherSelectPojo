@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import tbs.framework.config.BeanConfig;
 import tbs.framework.interfaces.IAccess;
 import tbs.framework.model.BaseRoleModel;
 import tbs.utils.socket.ISocketClient;
@@ -22,8 +23,7 @@ import java.util.Set;
 @Component
 public abstract class BasicSocketWorker implements ISocketWorker {
 
-    @Resource
-    private IAccess access = null;
+    private IAccess access = BeanConfig.getInstance().getAccessElement();
 
     public String SERVICE_NAME = "";
     @Resource
