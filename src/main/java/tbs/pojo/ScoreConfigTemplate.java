@@ -1,11 +1,9 @@
 package tbs.pojo;
 
-import tbs.utils.sql.annotations.SqlField;
-import tbs.utils.sql.annotations.Updateable;
+import tbs.framework.annotation.SqlField;
 
 import java.util.Date;
 
-@Updateable(table = "scoreConfigTemplate")
 public class ScoreConfigTemplate {
 
     @SqlField

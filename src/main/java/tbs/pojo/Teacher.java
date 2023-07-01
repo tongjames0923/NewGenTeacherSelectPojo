@@ -1,9 +1,7 @@
 package tbs.pojo;
 
-import tbs.utils.sql.annotations.SqlField;
-import tbs.utils.sql.annotations.Updateable;
+import tbs.framework.annotation.SqlField;
 
-@Updateable(table = "teacher")
 public class Teacher {
     /**
      * 工号

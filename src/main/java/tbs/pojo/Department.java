@@ -1,15 +1,21 @@
 package tbs.pojo;
 
-import tbs.utils.sql.annotations.SqlField;
-import tbs.utils.sql.annotations.Updateable;
+import tbs.framework.annotation.SqlField;
+import tbs.framework.sql.model.BasicModel;
 
-@Updateable(table = "department")
-public class Department {
-    @SqlField
+import javax.persistence.Column;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Table(name = "department")
+public class Department extends BasicModel {
+    @Id
+    @Column
     private int id;
+
     @SqlField
     private int parentId;
-    @SqlField
+    @Column
     private String departname;
 
     public int getId() {

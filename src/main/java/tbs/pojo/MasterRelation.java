@@ -4,17 +4,14 @@ package tbs.pojo;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import tbs.utils.sql.annotations.SqlField;
-import tbs.utils.sql.annotations.Updateable;
+import tbs.framework.annotation.SqlField;
 
 @Data
 @NoArgsConstructor
 @ToString
-@Updateable(table = "masterrelation")
 @TableName("masterrelation")
 public class MasterRelation {
 
