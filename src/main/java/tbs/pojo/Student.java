@@ -11,7 +11,7 @@ public class Student {
     private String studentNo;
     @TableField
     String cla;
-    @TableField()
+    @TableField
     String phone;
 
     @TableField
