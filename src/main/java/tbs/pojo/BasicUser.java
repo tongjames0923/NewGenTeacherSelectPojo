@@ -1,24 +1,27 @@
 package tbs.pojo;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.ToString;
-import tbs.utils.sql.annotations.SqlField;
-import tbs.utils.sql.annotations.Updateable;
+import tbs.framework.sql.annotations.SqlField;
 
-@Updateable(table = "basicuser")
+@TableName( "basicuser")
 @ToString
 public class BasicUser {
 
-    @SqlField
+    @TableId
     private String uid;
-    @SqlField
+    @TableField
     private String name;
-    @SqlField
+    @TableField
     private String password;
+    @TableField
     @SqlField(isPrimary = true)
     private String phone;
-    @SqlField
+    @TableField
     private Integer role;
-    @SqlField
+    @TableField
     private Integer departmentId;
 
     public String getUid() {

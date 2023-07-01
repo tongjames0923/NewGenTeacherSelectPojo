@@ -1,15 +1,17 @@
 package tbs.pojo;
 
-import tbs.utils.sql.annotations.SqlField;
-import tbs.utils.sql.annotations.Updateable;
 
-@Updateable(table = "department")
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+
+@TableName( "department")
 public class Department {
-    @SqlField
+    @TableId
     private int id;
-    @SqlField
+    @TableField
     private int parentId;
-    @SqlField
+    @TableField
     private String departname;
 
     public int getId() {

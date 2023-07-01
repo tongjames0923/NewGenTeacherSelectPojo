@@ -1,13 +1,17 @@
 package tbs.pojo;
 
-import tbs.utils.sql.annotations.SqlField;
-import tbs.utils.sql.annotations.Updateable;
 
-@Updateable(table = "admin")
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+
+@TableName("admin")
 public class Admin {
-    @SqlField
+    @TableField
+    @TableId
     private String adminToken;
-    @SqlField
+    @TableField
     String phone;
 
     public String getAdminToken() {
