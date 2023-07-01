@@ -1,22 +1,20 @@
 package tbs.pojo;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import tbs.utils.sql.annotations.SqlField;
+import tbs.utils.sql.annotations.Updateable;
 
-
-@TableName(value = "scoreConfigTemplateItem")
+@Updateable(table = "scoreConfigTemplateItem")
 public class ScoreConfigTemplateItem {
-    @TableId
+    @SqlField
     private int id;
-    @TableField
+    @SqlField
     private Integer sortCode;
-    @TableField
+    @SqlField
     private Integer percent;
-    @TableField
+    @SqlField
     private String templateId;
 
-    @TableField
+    @SqlField
     private String configName;
 
     public String getConfigName() {

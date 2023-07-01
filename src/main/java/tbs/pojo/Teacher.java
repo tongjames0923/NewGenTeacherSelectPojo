@@ -1,30 +1,29 @@
 package tbs.pojo;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import tbs.utils.sql.annotations.SqlField;
+import tbs.utils.sql.annotations.Updateable;
 
-@TableName(value = "teacher")
+@Updateable(table = "teacher")
 public class Teacher {
     /**
      * 工号
      */
-    @TableId
+    @SqlField
     String workNo;
     /**
      * 手机号
      */
-    @TableField
+    @SqlField(isPrimary = true)
     String phone;
     /**
      * 职位
      */
-    @TableField
+    @SqlField
     String position;
     /**
      * 职称
      */
-    @TableField
+    @SqlField
     String pro_title;
 
 

@@ -1,23 +1,21 @@
 package tbs.pojo;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import tbs.utils.sql.annotations.SqlField;
+import tbs.utils.sql.annotations.Updateable;
 
-
-@TableName(value = "student")
+@Updateable(table = "student")
 public class Student {
-    @TableId
+    @SqlField
     private String studentNo;
-    @TableField
+    @SqlField
     String cla;
-    @TableField()
+    @SqlField(isPrimary = true)
     String phone;
 
-    @TableField
+    @SqlField
     private Integer grade;
 
-    @TableField
+    @SqlField
     private Double score;
 
     public Double getScore() {

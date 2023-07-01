@@ -1,23 +1,22 @@
 package tbs.pojo;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import tbs.utils.sql.annotations.SqlField;
+import tbs.utils.sql.annotations.Updateable;
 
 import java.util.Date;
 
-@TableName("scoreConfigTemplate")
+@Updateable(table = "scoreConfigTemplate")
 public class ScoreConfigTemplate {
 
-    @TableId
+    @SqlField
     private String id;
-    @TableField("templateName")
+    @SqlField
     private String templateName;
-    @TableField
+    @SqlField
     private String createUser;
-    @TableField
+    @SqlField
     private Date createTime;
-    @TableField
+    @SqlField
     private int departmentId;
 
 

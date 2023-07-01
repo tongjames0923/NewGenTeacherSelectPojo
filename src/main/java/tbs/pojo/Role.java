@@ -1,14 +1,13 @@
 package tbs.pojo;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import tbs.utils.sql.annotations.SqlField;
+import tbs.utils.sql.annotations.Updateable;
 
-@TableName("role")
+@Updateable(table = "role")
 public class Role {
-    @TableId
+    @SqlField
     int roleid;
-    @TableField
+    @SqlField
     String rolename;
 
     public int getRoleid() {
