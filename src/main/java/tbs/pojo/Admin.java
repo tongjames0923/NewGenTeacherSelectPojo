@@ -1,15 +1,13 @@
 package tbs.pojo;
 
-import tbs.framework.annotation.SqlField;
-import tbs.framework.sql.model.BasicModel;
+import tbs.utils.sql.annotations.SqlField;
+import tbs.utils.sql.annotations.Updateable;
 
-import javax.persistence.Table;
-
-@Table(name = "admin")
-public class Admin extends BasicModel {
+@Updateable(table = "admin")
+public class Admin {
     @SqlField
     private String adminToken;
-    @SqlField(isPrimary = true)
+    @SqlField
     String phone;
 
     public String getAdminToken() {

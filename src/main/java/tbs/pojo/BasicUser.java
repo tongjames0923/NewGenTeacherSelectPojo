@@ -1,26 +1,22 @@
 package tbs.pojo;
 
 import lombok.ToString;
-import tbs.framework.annotation.SqlField;
-import tbs.framework.sql.model.BasicModel;
+import tbs.utils.sql.annotations.SqlField;
+import tbs.utils.sql.annotations.Updateable;
 
-import javax.persistence.Column;
-import javax.persistence.Table;
-
-@Table(name = "basicuser")
+@Updateable(table = "basicuser")
 @ToString
-public class BasicUser extends BasicModel {
+public class BasicUser {
 
-    @Column
+    @SqlField
     private String uid;
-    @Column
+    @SqlField
     private String name;
-    @Column
+    @SqlField
     private String password;
     @SqlField(isPrimary = true)
-    @Column
     private String phone;
-    @Column
+    @SqlField
     private Integer role;
     @SqlField
     private Integer departmentId;

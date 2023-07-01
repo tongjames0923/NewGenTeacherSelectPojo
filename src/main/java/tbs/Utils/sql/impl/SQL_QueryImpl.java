@@ -1,7 +1,11 @@
 package tbs.utils.sql.impl;
 
-import tbs.framework.sql.query.Page;
-import tbs.framework.sql.query.Sortable;
+import org.springframework.util.CollectionUtils;
+import tbs.utils.sql.SQL_Tool;
+import tbs.utils.sql.query.Page;
+import tbs.utils.sql.query.Sortable;
+
+import java.util.List;
 
 public class SQL_QueryImpl {
 

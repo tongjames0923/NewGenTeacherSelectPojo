@@ -1,7 +1,9 @@
 package tbs.utils.sql.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import tbs.framework.sql.SQL_Tool;
+import tbs.utils.sql.SQL_Tool;
+
+import java.util.List;
 
 @Slf4j
 public class SqlUpdateImpl {
