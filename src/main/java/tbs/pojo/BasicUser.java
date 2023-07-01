@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.ToString;
-import tbs.framework.sql.annotations.SqlField;
 
 @TableName( "basicuser")
 @ToString
@@ -17,7 +16,6 @@ public class BasicUser {
     @TableField
     private String password;
     @TableField
-    @SqlField(isPrimary = true)
     private String phone;
     @TableField
     private Integer role;
