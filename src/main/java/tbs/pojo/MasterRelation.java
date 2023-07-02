@@ -7,12 +7,13 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import tbs.framework.model.BaseEntities;
 
 @Data
 @NoArgsConstructor
 @ToString
 @TableName( "masterrelation")
-public class MasterRelation {
+public class MasterRelation extends BaseEntities {
 
     @TableField(value = "masterPhone")
     private String masterPhone;

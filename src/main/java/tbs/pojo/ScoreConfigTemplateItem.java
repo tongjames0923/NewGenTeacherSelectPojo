@@ -9,14 +9,14 @@ import com.baomidou.mybatisplus.annotation.TableName;
 public class ScoreConfigTemplateItem {
     @TableId
     private int id;
-    @TableField
+    @TableField("sortCode")
     private Integer sortCode;
     @TableField
     private Integer percent;
-    @TableField
+    @TableField("templateId")
     private String templateId;
 
-    @TableField
+    @TableField("configName")
     private String configName;
 
     public String getConfigName() {

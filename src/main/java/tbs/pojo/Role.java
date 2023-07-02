@@ -4,18 +4,16 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import tbs.framework.model.BaseEntities;
 
 import java.util.Date;
 
 @Data
 @TableName("role")
-public class Role {
-    @TableId
+public class Role extends BaseEntities {
+    @TableId("roleid")
     Integer roleid;
-    @TableField
+    @TableField("rolename")
     String rolename;
-
-    @TableField
-    Date createDate;
 
 }

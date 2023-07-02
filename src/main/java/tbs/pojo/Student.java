@@ -3,11 +3,12 @@ package tbs.pojo;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import tbs.framework.model.BaseEntities;
 
 
 @TableName(value = "student")
-public class Student {
-    @TableId
+public class Student extends BaseEntities {
+    @TableId("studentNo")
     private String studentNo;
     @TableField
     String cla;

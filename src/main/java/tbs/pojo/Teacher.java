@@ -9,7 +9,7 @@ public class Teacher {
     /**
      * 工号
      */
-    @TableId
+    @TableId("workNo")
     String workNo;
     /**
      * 手机号
@@ -24,7 +24,7 @@ public class Teacher {
     /**
      * 职称
      */
-    @TableField
+    @TableField("pro_title")
     String pro_title;
 
 

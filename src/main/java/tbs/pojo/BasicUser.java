@@ -3,70 +3,26 @@ package tbs.pojo;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
 import lombok.ToString;
+import tbs.framework.model.BaseEntities;
 
 @TableName( "basicuser")
 @ToString
-public class BasicUser {
+@Data
+public class BasicUser extends BaseEntities {
 
-    @TableId
+    @TableId("uid")
     private String uid;
-    @TableField
+    @TableField("name")
     private String name;
-    @TableField
+    @TableField("password")
     private String password;
-    @TableField
+    @TableField("phone")
     private String phone;
-    @TableField
+    @TableField("role")
     private Integer role;
-    @TableField
+    @TableField("departmentId")
     private Integer departmentId;
 
-    public String getUid() {
-        return uid;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public Integer getRole() {
-        return role;
-    }
-
-    public void setRole(Integer role) {
-        this.role = role;
-    }
-
-    public Integer getDepartmentId() {
-        return departmentId;
-    }
-
-    public void setDepartmentId(Integer departmentId) {
-        this.departmentId = departmentId;
-    }
 }

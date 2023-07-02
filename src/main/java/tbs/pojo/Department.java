@@ -9,9 +9,9 @@ import com.baomidou.mybatisplus.annotation.TableName;
 public class Department {
     @TableId
     private int id;
-    @TableField
+    @TableField("parentId")
     private int parentId;
-    @TableField
+    @TableField("departname")
     private String departname;
 
     public int getId() {
