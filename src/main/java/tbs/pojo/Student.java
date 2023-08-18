@@ -4,12 +4,11 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.ToString;
-import tbs.framework.model.BaseEntities;
 
 
 @TableName(value = "student")
 @ToString
-public class Student extends BaseEntities {
+public class Student {
     @TableId("studentNo")
     private String studentNo;
     @TableField

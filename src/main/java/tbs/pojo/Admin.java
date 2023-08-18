@@ -1,14 +1,13 @@
 package tbs.pojo;
 
 
-import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import tbs.framework.model.BaseEntities;
+
 
 @TableName("admin")
-public class Admin extends BaseEntities {
+public class Admin {
     @TableId("adminToken")
     private String adminToken;
     @TableField("phone")

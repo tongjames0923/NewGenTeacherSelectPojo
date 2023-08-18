@@ -5,12 +5,12 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.ToString;
-import tbs.framework.model.BaseEntities;
+
 
 @TableName( "basicuser")
 @ToString
 @Data
-public class BasicUser extends BaseEntities {
+public class BasicUser  {
 
     @TableId("uid")
     private String uid;
