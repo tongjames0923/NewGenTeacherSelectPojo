@@ -17,12 +17,12 @@ public class ScoreConfigTemplate {
     @TableField("templateName")
     private String templateName;
     @TableField("departmentId")
-    private int departmentId;
+    private long departmentId;
     @TableField("createUser")
     private String createUser;
 
-    @TableField("createDate")
-    private Date createDate;
+    @TableField("createTime")
+    private Date createTime;
 
 
 }

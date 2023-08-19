@@ -7,14 +7,14 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.ToString;
 
-@TableName( "department")
+@TableName("department")
 @Data
 @ToString
 public class Department {
     @TableId
     private Long id;
     @TableField("parentId")
-    private int parentId;
+    private Long parentId;
     @TableField("departname")
     private String departname;
 
