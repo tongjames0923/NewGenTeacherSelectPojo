@@ -7,10 +7,10 @@ import lombok.Data;
 import lombok.ToString;
 
 
-@TableName( "basicuser")
+@TableName("basicuser")
 @ToString
 @Data
-public class BasicUser  {
+public class BasicUser {
 
     @TableId("uid")
     private String uid;
@@ -23,6 +23,6 @@ public class BasicUser  {
     @TableField("role")
     private Integer role;
     @TableField("departmentId")
-    private Integer departmentId;
+    private Long departmentId;
 
 }
