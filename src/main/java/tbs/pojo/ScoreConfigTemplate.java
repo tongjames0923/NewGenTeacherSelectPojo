@@ -17,7 +17,7 @@ public class ScoreConfigTemplate {
     @TableField("templateName")
     private String templateName;
     @TableField("departmentId")
-    private long departmentId;
+    private Long departmentId;
     @TableField("createUser")
     private String createUser;
 
