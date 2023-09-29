@@ -7,10 +7,14 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.ToString;
 
+import java.io.Serializable;
+
 @TableName("department")
 @Data
 @ToString
-public class Department {
+public class Department implements Serializable {
+
+    private static final long serialVersionUID = 8736348091873326341L;
     @TableId
     private Long id;
     @TableField("parentId")
